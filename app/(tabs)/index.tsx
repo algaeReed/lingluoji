@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
 import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, Platform, RefreshControl, StyleSheet, TouchableOpacity, View } from "react-native";
@@ -7,80 +6,30 @@ import { Avatar, Card, MD3Theme, Provider as PaperProvider, Switch, Text, useThe
 import DraggableFAB from "@/components/DraggableFAB/DraggableFAB";
 import AddItemModal from "@/components/HModal/AddItemModal";
 import EditItemModal from "@/components/HModal/EditItemModal";
-
-type DailyPrice = {
-  date: string;
-  price: number;
-};
-
-type Item = {
-  id: string;
-  name: string;
-  price: number;
-  purchaseDate: string;
-  dailyPrices: DailyPrice[];
-  imageUri?: string;
-};
-
-export const STORAGE_KEY = "@items_storage";
+import SummaryCard from "@/components/SummaryCard/SummaryCard";
+import { Item, useItemsStore } from "@/store/itemStore";
+// import { Item } from "";
 
 export default function App() {
+  const theme: MD3Theme = useTheme();
   const [isDarkTheme, setIsDarkTheme] = useState(false);
-  const [items, setItems] = useState<Item[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
 
-  const theme: MD3Theme = {
-    ...useTheme(),
-    dark: isDarkTheme,
-    mode: isDarkTheme ? "adaptive" : "exact",
-  };
-
-  // 生成每日均价数组
-  const generateDailyPrices = (startDateISO: string, totalPrice: number): DailyPrice[] => {
-    const startDate = dayjs(startDateISO).startOf("day");
-    const endDate = dayjs().startOf("day");
-    const daysCount = endDate.diff(startDate, "day") + 1;
-    const avg = totalPrice / daysCount;
-    return Array.from({ length: daysCount }, (_, i) => ({
-      date: startDate.add(i, "day").format("YYYY-MM-DD"),
-      price: avg,
-    }));
-  };
-
-  // 加载数据
-  const loadData = async () => {
-    try {
-      const json = await AsyncStorage.getItem(STORAGE_KEY);
-      if (json) setItems(JSON.parse(json));
-    } catch (e) {
-      console.warn("加载数据失败", e);
-    }
-  };
-
-  // 保存数据
-  const saveData = async (newItems: Item[]) => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newItems));
-    } catch (e) {
-      console.warn("保存数据失败", e);
-    }
-  };
+  const { items, loadItems, addItem, updateItem, deleteItem } = useItemsStore();
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadItems();
+  }, [loadItems]);
 
-  // 下拉刷新
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadData();
+    await loadItems();
     setRefreshing(false);
-  }, []);
+  }, [loadItems]);
 
-  // 打开/关闭添加编辑弹窗
   const openAddModal = () => setAddModalVisible(true);
   const closeAddModal = () => setAddModalVisible(false);
 
@@ -93,54 +42,36 @@ export default function App() {
     setEditModalVisible(false);
   };
 
-  // 添加物品保存
   const handleAddSave = (data: { name: string; price: number; purchaseDate: Date; imageUri?: string }) => {
-    const dailyPrices = generateDailyPrices(dayjs(data.purchaseDate).format("YYYY-MM-DD"), data.price);
-    const newItem: Item = {
-      id: Date.now().toString(),
+    addItem({
       name: data.name,
       price: data.price,
       purchaseDate: dayjs(data.purchaseDate).format("YYYY-MM-DD"),
-      dailyPrices,
       imageUri: data.imageUri,
-    };
-    const newItems = [newItem, ...items];
-    setItems(newItems);
-    saveData(newItems);
+    });
     closeAddModal();
   };
 
-  // 编辑物品保存
   const handleEditSave = (data: { name: string; price: number; purchaseDate: Date; imageUri?: string }) => {
     if (!editingItem) return;
-    const dailyPrices = generateDailyPrices(dayjs(data.purchaseDate).format("YYYY-MM-DD"), data.price);
-    const updatedItem: Item = {
-      ...editingItem,
+    updateItem(editingItem.id, {
       name: data.name,
       price: data.price,
       purchaseDate: dayjs(data.purchaseDate).format("YYYY-MM-DD"),
-      dailyPrices,
       imageUri: data.imageUri,
-    };
-    const newItems = items.map((it) => (it.id === editingItem.id ? updatedItem : it));
-    setItems(newItems);
-    saveData(newItems);
+    });
     closeEditModal();
   };
 
-  // 删除物品
   const handleDelete = () => {
     if (!editingItem) return;
-    const newItems = items.filter((it) => it.id !== editingItem.id);
-    setItems(newItems);
-    saveData(newItems);
+    deleteItem(editingItem.id);
     closeEditModal();
   };
 
-  // 列表渲染
   const renderItem = ({ item }: { item: Item }) => {
-    const days = item.dailyPrices.length;
-    const avgPrice = item.price / days;
+    const days = item.dailyPrices?.length || 0;
+    const avgPrice = days > 0 ? item.price / days : 0;
 
     return (
       <TouchableOpacity onPress={() => openEditModal(item)}>
@@ -156,7 +87,7 @@ export default function App() {
               <Text style={styles.itemDate}>购买日期: {item.purchaseDate}</Text>
               <Text style={styles.priceText}>总价格: ¥{item.price.toFixed(2)}</Text>
               <Text style={styles.avgPriceText}>日均价格: ¥{avgPrice.toFixed(2)}</Text>
-              <Text style={styles.dayCountText}>共 {days} 天</Text>
+              <Text style={styles.dayCountText}>已过天数: {days} 天</Text>
             </View>
           </View>
         </Card>
@@ -172,6 +103,8 @@ export default function App() {
           <Switch value={isDarkTheme} onValueChange={setIsDarkTheme} />
         </View>
 
+        {items.length > 0 && <SummaryCard items={items} />}
+
         <FlatList
           data={items}
           keyExtractor={(item) => item.id}
@@ -186,7 +119,6 @@ export default function App() {
         />
 
         <AddItemModal visible={addModalVisible} onDismiss={closeAddModal} onSave={handleAddSave} />
-
         {editingItem && (
           <EditItemModal
             visible={editModalVisible}
@@ -201,6 +133,7 @@ export default function App() {
             }}
           />
         )}
+
         <DraggableFAB onPress={openAddModal} />
       </View>
     </PaperProvider>
@@ -262,12 +195,5 @@ const styles = StyleSheet.create({
   emptyContainer: {
     paddingTop: 100,
     alignItems: "center",
-  },
-  fab: {
-    position: "absolute",
-    right: 20,
-    bottom: 80,
-    backgroundColor: "#6200ee",
-    elevation: 6,
   },
 });
