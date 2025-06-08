@@ -1,4 +1,3 @@
-// components/Home/layouts/CardLayout.tsx
 import { Item } from "@/store/itemStore";
 import React from "react";
 import { Dimensions, FlatList, RefreshControl, StyleSheet, View } from "react-native";

@@ -2,7 +2,6 @@
 import { Item } from "@/store/itemStore";
 import MasonryList from "@react-native-seoul/masonry-list";
 import React from "react";
-import { Text } from "react-native";
 import ItemCard from "./ItemCard";
 interface Props {
   items: Item[];
@@ -13,7 +12,6 @@ interface Props {
 export default function MasonryLayout({ items, onEdit, onDelete }: Props) {
   return (
     <>
-      <Text>MasonryLayout</Text>
       <MasonryList
         data={items}
         keyExtractor={(item: Item) => item.id}
