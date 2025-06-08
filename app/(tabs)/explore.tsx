@@ -13,7 +13,8 @@ export default function TabTwoScreen() {
   const theme = useTheme();
   const { clearAllItems, generateTestData } = useItemsStore();
 
-  const { exportToJSON, exportToExcel, importFromExcel, importFromJSON } = useExportItems();
+  const { exportToJSON, exportToExcel, importFromExcel, importFromJSON, exportTemplateJSON, exportTemplateExcel } =
+    useExportItems();
 
   const themeMode = useSettingsStore((state) => state.themeMode);
   const setThemeMode = useSettingsStore((state) => state.setThemeMode);
@@ -104,21 +105,53 @@ export default function TabTwoScreen() {
 
         <LayoutSwitcher />
 
-        <Button mode='outlined' onPress={exportToJSON} style={styles.button} contentStyle={styles.buttonContent}>
-          导出为 JSON
-        </Button>
+        <View style={styles.buttonGroup}>
+          <Button mode='outlined' onPress={exportToJSON} style={styles.flexButton} contentStyle={styles.buttonContent}>
+            导出为 JSON
+          </Button>
+          <Button mode='outlined' onPress={exportToExcel} style={styles.flexButton} contentStyle={styles.buttonContent}>
+            导出为 Excel
+          </Button>
+        </View>
 
-        <Button mode='outlined' onPress={exportToExcel} style={styles.button} contentStyle={styles.buttonContent}>
-          导出为 Excel
-        </Button>
+        <View style={styles.buttonGroup}>
+          <Button
+            mode='outlined'
+            onPress={exportTemplateJSON}
+            style={styles.flexButton}
+            contentStyle={styles.buttonContent}
+          >
+            导出 JSON 模版
+          </Button>
+          <Button
+            mode='outlined'
+            onPress={exportTemplateExcel}
+            style={styles.flexButton}
+            contentStyle={styles.buttonContent}
+          >
+            导出 Excel 模版
+          </Button>
+        </View>
 
-        <Button mode='outlined' onPress={importFromJSON} style={styles.button} contentStyle={styles.buttonContent}>
-          导入 JSON
-        </Button>
-
-        <Button mode='outlined' onPress={importFromExcel} style={styles.button} contentStyle={styles.buttonContent}>
-          导入 Excel
-        </Button>
+        {/* 导入按钮组 */}
+        <View style={styles.buttonGroup}>
+          <Button
+            mode='outlined'
+            onPress={importFromJSON}
+            style={styles.flexButton}
+            contentStyle={styles.buttonContent}
+          >
+            导入 JSON
+          </Button>
+          <Button
+            mode='outlined'
+            onPress={importFromExcel}
+            style={styles.flexButton}
+            contentStyle={styles.buttonContent}
+          >
+            导入 Excel
+          </Button>
+        </View>
       </View>
     </ScrollView>
   );
@@ -158,5 +191,17 @@ const styles = StyleSheet.create({
   },
   buttonContent: {
     height: 48,
+  },
+
+  buttonGroup: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+    marginTop: 12,
+  },
+  flexButton: {
+    flex: 1,
+    borderRadius: 10,
+    elevation: 2,
   },
 });
