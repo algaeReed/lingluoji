@@ -1,5 +1,6 @@
 // hooks/useExportItems.ts
 import { Item, useItemsStore } from "@/store/itemStore";
+import dayjs from "dayjs";
 import * as DocumentPicker from "expo-document-picker";
 import { Alert } from "react-native";
 import * as XLSX from "xlsx";
@@ -57,9 +58,16 @@ export function useExportItems() {
       const fileUri = result.assets[0].uri;
       const content = await FileSystem.readAsStringAsync(fileUri);
       const parsed = JSON.parse(content);
+
       if (!Array.isArray(parsed)) throw new Error("文件内容无效，必须是数组");
-      setItems(parsed);
-      Alert.alert("导入成功", `共导入 ${parsed.length} 条记录`);
+
+      const enriched = parsed.map((item: Item) => ({
+        ...item,
+        dailyPrices: generateDailyPrices(item.price, item.purchaseDate),
+      }));
+
+      setItems(enriched);
+      Alert.alert("导入成功", `共导入 ${enriched.length} 条记录`);
     } catch (e) {
       Alert.alert("导入失败", "JSON导入失败：" + (e as Error).message);
     }
@@ -84,8 +92,14 @@ export function useExportItems() {
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(sheet) as Item[];
-      jsonData && setItems(jsonData);
-      Alert.alert("导入成功", `共导入 ${jsonData.length} 条记录`);
+
+      const enriched = jsonData.map((item: Item) => ({
+        ...item,
+        dailyPrices: generateDailyPrices(item.price, item.purchaseDate),
+      }));
+
+      setItems(enriched);
+      Alert.alert("导入成功", `共导入 ${enriched.length} 条记录`);
     } catch (e) {
       Alert.alert("导入失败", "Excel导入失败：" + (e as Error).message);
     }
@@ -163,3 +177,20 @@ export async function downloadFile(content: string, filename: string, mimeType: 
     alert("导出失败：" + (error as Error).message);
   }
 }
+
+const generateDailyPrices = (price: number, purchaseDate: string): { date: string; price: number }[] => {
+  const start = dayjs(purchaseDate);
+  const today = dayjs();
+  const days = today.diff(start, "day") + 1;
+  if (days <= 0) return [];
+
+  const dailyPrice = price / days;
+  const result: { date: string; price: number }[] = [];
+
+  for (let i = 0; i < days; i++) {
+    const date = start.add(i, "day").format("YYYY-MM-DD");
+    result.push({ date, price: parseFloat(dailyPrice.toFixed(2)) });
+  }
+
+  return result;
+};

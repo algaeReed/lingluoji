@@ -14,6 +14,7 @@ interface ItemListProps {
 
 export default function ItemList({ items, refreshing, onRefresh, onEdit, onDelete }: ItemListProps) {
   const renderFrontItem = ({ item }: { item: Item }) => {
+    console.log("item single", item);
     const days = item.dailyPrices?.length || 0;
     const avgPrice = days > 0 ? item.price / days : 0;
 
