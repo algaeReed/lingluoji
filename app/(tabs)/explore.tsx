@@ -16,6 +16,9 @@ export default function TabTwoScreen() {
   const { exportToJSON, exportToExcel, importFromExcel, importFromJSON, exportTemplateJSON, exportTemplateExcel } =
     useExportItems();
 
+  const showTabBar = useSettingsStore((state) => state.showTabBar);
+  const setShowTabBar = useSettingsStore((state) => state.setShowTabBar);
+
   const themeMode = useSettingsStore((state) => state.themeMode);
   const setThemeMode = useSettingsStore((state) => state.setThemeMode);
   const themeOptions = useSettingsStore((state) => state.themeOptions);
@@ -76,7 +79,6 @@ export default function TabTwoScreen() {
             ))}
           </RadioButton.Group>
         </View>
-
         <TextInput
           label='生成条数'
           value={amount}
@@ -85,13 +87,10 @@ export default function TabTwoScreen() {
           mode='outlined'
           style={styles.input}
         />
-
         {isGenerating && <ProgressBar progress={progress} color={theme.colors.primary} style={styles.progress} />}
-
         <Button mode='outlined' onPress={handleClear} style={styles.button} contentStyle={styles.buttonContent}>
           清除所有数据
         </Button>
-
         <Button
           mode='contained-tonal'
           onPress={handleGenerate}
@@ -102,9 +101,7 @@ export default function TabTwoScreen() {
         >
           生成测试数据
         </Button>
-
         <LayoutSwitcher />
-
         <View style={styles.buttonGroup}>
           <Button mode='outlined' onPress={exportToJSON} style={styles.flexButton} contentStyle={styles.buttonContent}>
             导出为 JSON
@@ -113,7 +110,6 @@ export default function TabTwoScreen() {
             导出为 Excel
           </Button>
         </View>
-
         <View style={styles.buttonGroup}>
           <Button
             mode='outlined'
@@ -132,7 +128,6 @@ export default function TabTwoScreen() {
             导出 Excel 模版
           </Button>
         </View>
-
         {/* 导入按钮组 */}
         <View style={styles.buttonGroup}>
           <Button
@@ -152,6 +147,30 @@ export default function TabTwoScreen() {
             导入 Excel
           </Button>
         </View>
+        <Button
+          mode='outlined'
+          onPress={() => setShowTabBar(!showTabBar)}
+          style={styles.button}
+          contentStyle={styles.buttonContent}
+        >
+          {showTabBar ? "隐藏底部栏" : "显示底部栏"}
+        </Button>{" "}
+        <Button
+          mode='outlined'
+          onPress={() => setShowTabBar(!showTabBar)}
+          style={styles.button}
+          contentStyle={styles.buttonContent}
+        >
+          {showTabBar ? "隐藏底部栏" : "显示底部栏"}
+        </Button>{" "}
+        <Button
+          mode='outlined'
+          onPress={() => setShowTabBar(!showTabBar)}
+          style={styles.button}
+          contentStyle={styles.buttonContent}
+        >
+          {showTabBar ? "隐藏底部栏" : "显示底部栏"}
+        </Button>
       </View>
     </ScrollView>
   );

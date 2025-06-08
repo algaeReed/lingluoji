@@ -7,9 +7,11 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { useSettingsStore } from "@/store/settingsStore";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const showTabBar = useSettingsStore((state) => state.showTabBar);
 
   return (
     <Tabs
@@ -18,13 +20,15 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: "absolute",
-          },
-          default: {},
-        }),
+        tabBarStyle: [
+          { display: showTabBar ? "flex" : "none" },
+          Platform.select({
+            ios: {
+              position: "absolute",
+            },
+            default: {},
+          }),
+        ],
       }}
     >
       <Tabs.Screen

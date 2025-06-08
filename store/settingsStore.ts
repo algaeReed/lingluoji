@@ -18,6 +18,10 @@ interface SettingsStore {
   // 主题选项，放store里
   themeOptions: ThemeOption[];
   setThemeOptions: (options: ThemeOption[]) => void;
+
+  // 新增 tabBar 显示控制
+  showTabBar: boolean;
+  setShowTabBar: (visible: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsStore>((set) => ({
@@ -34,4 +38,7 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
     { label: "绿色 Green", value: "green" },
   ],
   setThemeOptions: (options) => set({ themeOptions: options }),
+
+  showTabBar: true,
+  setShowTabBar: (visible) => set({ showTabBar: visible }),
 }));
