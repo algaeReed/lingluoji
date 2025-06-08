@@ -1,8 +1,10 @@
 import dayjs from "dayjs";
+import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import { Button, Modal, TextInput, useTheme } from "react-native-paper";
 import { DatePickerModal } from "react-native-paper-dates";
+
 import AlertDialog from "../AlertDialog/AlertDialog";
 import AutoCompleteInput from "../Input/AutoCompleteInput";
 
@@ -22,6 +24,7 @@ type Props = {
 
 export default function ItemModal({ visible, onDismiss, onSave, onDelete, initialData, isEditing = false }: Props) {
   const theme = useTheme();
+
   const [name, setName] = useState(initialData?.name ?? "");
   const [priceText, setPriceText] = useState(initialData ? initialData.price.toString() : "");
   const [purchaseDate, setPurchaseDate] = useState<Date | undefined>(initialData?.purchaseDate);
@@ -68,6 +71,18 @@ export default function ItemModal({ visible, onDismiss, onSave, onDelete, initia
     onSave({ name: name.trim(), price, purchaseDate, imageUri });
   };
 
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -75,6 +90,7 @@ export default function ItemModal({ visible, onDismiss, onSave, onDelete, initia
       contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
     >
       <AutoCompleteInput label='物品名称' value={name} onChangeText={setName} style={styles.input} />
+
       <TextInput
         label='价格'
         value={priceText}
@@ -83,9 +99,11 @@ export default function ItemModal({ visible, onDismiss, onSave, onDelete, initia
         mode='outlined'
         style={styles.input}
       />
+
       <Button mode='outlined' onPress={() => setDatePickerVisible(true)} style={{ marginBottom: 12 }}>
         {purchaseDate ? `购买日期: ${dayjs(purchaseDate).format("YYYY-MM-DD")}` : "选择购买日期"}
       </Button>
+
       <DatePickerModal
         locale='zh'
         mode='single'
@@ -101,8 +119,15 @@ export default function ItemModal({ visible, onDismiss, onSave, onDelete, initia
         animationType='slide'
       />
 
-      {/* 图片选择逻辑你可以继续封装或传递回调 */}
-      {/* 这里简化省略 */}
+      <Button mode='outlined' onPress={pickImage} style={{ marginBottom: 12 }}>
+        {imageUri ? "更换图片" : "选择图片"}
+      </Button>
+
+      {imageUri && (
+        <View style={styles.imageContainer}>
+          <Image source={{ uri: imageUri }} style={styles.imagePreview} resizeMode='cover' />
+        </View>
+      )}
 
       <Button mode='contained' onPress={handleSave} style={{ marginBottom: 8 }}>
         保存
@@ -130,5 +155,14 @@ const styles = StyleSheet.create({
   input: {
     marginBottom: 24,
     backgroundColor: "transparent",
+  },
+  imageContainer: {
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  imagePreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
   },
 });

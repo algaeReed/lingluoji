@@ -1,15 +1,22 @@
-import { useItemsStore } from "@/store/itemStore";
 import React, { useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
-import { Button, ProgressBar, TextInput, useTheme } from "react-native-paper";
+import { Button, ProgressBar, RadioButton, Text, TextInput, useTheme } from "react-native-paper";
+
+import LayoutSwitcher from "@/components/LayoutSwitcher/LayoutSwitcher";
+import { useItemsStore } from "@/store/itemStore";
+import { ThemeMode, useSettingsStore } from "@/store/settingsStore";
 
 export default function TabTwoScreen() {
   const theme = useTheme();
   const { clearAllItems, generateTestData } = useItemsStore();
 
+  const themeMode = useSettingsStore((state) => state.themeMode);
+  const setThemeMode = useSettingsStore((state) => state.setThemeMode);
+  const themeOptions = useSettingsStore((state) => state.themeOptions);
+
   const [progress, setProgress] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [amount, setAmount] = useState("1000");
+  const [amount, setAmount] = useState("100");
 
   const handleClear = () => {
     Alert.alert("确认清除", "确定要清空所有数据吗？此操作不可恢复。", [
@@ -52,6 +59,18 @@ export default function TabTwoScreen() {
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.innerContainer}>
+        <View>
+          <Text style={{ marginBottom: 8 }}>选择主题</Text>
+          <RadioButton.Group onValueChange={(newValue) => setThemeMode(newValue as ThemeMode)} value={themeMode}>
+            {themeOptions.map(({ label, value }) => (
+              <View key={value} style={styles.radioRow}>
+                <RadioButton value={value} />
+                <Text>{label}</Text>
+              </View>
+            ))}
+          </RadioButton.Group>
+        </View>
+
         <TextInput
           label='生成条数'
           value={amount}
@@ -77,6 +96,8 @@ export default function TabTwoScreen() {
         >
           生成测试数据
         </Button>
+
+        <LayoutSwitcher />
       </View>
     </ScrollView>
   );
@@ -88,19 +109,31 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 24,
     paddingVertical: 40,
+    backgroundColor: "transparent", // 这里让背景色由theme控制
   },
   innerContainer: {
-    gap: 16,
+    gap: 24, // 增大间距让布局更舒展
+  },
+  radioRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12, // 增加点间距，避免挤在一起
+    marginBottom: 12,
   },
   input: {
     backgroundColor: "transparent",
+    fontSize: 16,
+    paddingVertical: 6,
   },
   progress: {
     height: 8,
     borderRadius: 4,
+    marginVertical: 12, // 上下间距更合理
   },
   button: {
-    borderRadius: 8,
+    borderRadius: 10,
+    marginTop: 8,
+    elevation: 2, // 加点阴影，立体感更强
   },
   buttonContent: {
     height: 48,
