@@ -14,9 +14,21 @@ export default function AutoCompleteInput({ label = "物品名称", value, onCha
   const [showSuggestions, setShowSuggestions] = useState(false);
   const theme = useTheme();
 
+  function fuzzyMatch(input: string, target: string) {
+    input = input.toLowerCase();
+    target = target.toLowerCase();
+    let i = 0;
+    for (let char of target) {
+      if (char === input[i]) i++;
+      if (i === input.length) return true;
+    }
+    return false;
+  }
+
   const filteredSuggestions = useMemo(() => {
     if (!value.trim()) return [];
-    return sampleSuggestions.filter((item) => item.name.toLowerCase().includes(value.trim().toLowerCase()));
+    const input = value.trim();
+    return sampleSuggestions.filter((item) => fuzzyMatch(input, item.name));
   }, [value]);
 
   const handleChangeText = useCallback(
