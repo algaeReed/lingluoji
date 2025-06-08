@@ -21,6 +21,7 @@ export type Item = {
 
 type ItemsStore = {
   items: Item[];
+  setItems: (items: Item[]) => void;
   loadItems: () => Promise<void>;
   saveItems: () => Promise<void>;
   addItem: (item: Omit<Item, "id" | "dailyPrices">) => void;
@@ -43,6 +44,7 @@ const generateDailyPrices = (startDateISO: string, totalPrice: number): DailyPri
 
 export const useItemsStore = create<ItemsStore>((set, get) => ({
   items: [],
+  setItems: (newItems: Item[]) => set({ items: newItems }),
   loadItems: async () => {
     try {
       const json = await AsyncStorage.getItem(STORAGE_KEY);

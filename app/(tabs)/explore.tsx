@@ -2,13 +2,18 @@ import React, { useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Button, ProgressBar, RadioButton, Text, TextInput, useTheme } from "react-native-paper";
 
-import LayoutSwitcher from "@/components/LayoutSwitcher/LayoutSwitcher";
 import { useItemsStore } from "@/store/itemStore";
 import { ThemeMode, useSettingsStore } from "@/store/settingsStore";
 
+import LayoutSwitcher from "@/components/LayoutSwitcher/LayoutSwitcher";
+import { useExportItems } from "@/hooks/useExportItems";
+
+// 在组件函数内
 export default function TabTwoScreen() {
   const theme = useTheme();
   const { clearAllItems, generateTestData } = useItemsStore();
+
+  const { exportToJSON, exportToExcel, importFromExcel, importFromJSON } = useExportItems();
 
   const themeMode = useSettingsStore((state) => state.themeMode);
   const setThemeMode = useSettingsStore((state) => state.setThemeMode);
@@ -98,6 +103,22 @@ export default function TabTwoScreen() {
         </Button>
 
         <LayoutSwitcher />
+
+        <Button mode='outlined' onPress={exportToJSON} style={styles.button} contentStyle={styles.buttonContent}>
+          导出为 JSON
+        </Button>
+
+        <Button mode='outlined' onPress={exportToExcel} style={styles.button} contentStyle={styles.buttonContent}>
+          导出为 Excel
+        </Button>
+
+        <Button mode='outlined' onPress={importFromJSON} style={styles.button} contentStyle={styles.buttonContent}>
+          导入 JSON
+        </Button>
+
+        <Button mode='outlined' onPress={importFromExcel} style={styles.button} contentStyle={styles.buttonContent}>
+          导入 Excel
+        </Button>
       </View>
     </ScrollView>
   );
