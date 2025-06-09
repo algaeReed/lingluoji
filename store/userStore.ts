@@ -21,7 +21,6 @@ export const useUserStore = create<UserStore>()(
       setUser: (user) => set({ user }),
       clearUser: () => set({ user: undefined }),
     }),
-
     {
       name: "user-storage",
       storage: createJSONStorage(() => AsyncStorage),

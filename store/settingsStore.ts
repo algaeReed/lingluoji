@@ -1,5 +1,8 @@
+import AsyncStorage from "@react-native-async-storage/async-storage"; // React Native
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
+// 类型定义
 export type LayoutMode = "card" | "singleColumn" | "doubleColumn";
 export type ThemeMode = "light" | "dark" | "blue" | "green";
 
@@ -15,30 +18,36 @@ interface SettingsStore {
   layoutMode: LayoutMode;
   setLayoutMode: (mode: LayoutMode) => void;
 
-  // 主题选项，放store里
   themeOptions: ThemeOption[];
   setThemeOptions: (options: ThemeOption[]) => void;
 
-  // 新增 tabBar 显示控制
   showTabBar: boolean;
   setShowTabBar: (visible: boolean) => void;
 }
 
-export const useSettingsStore = create<SettingsStore>((set) => ({
-  themeMode: "light",
-  setThemeMode: (mode) => set({ themeMode: mode }),
+export const useSettingsStore = create<SettingsStore>()(
+  persist(
+    (set) => ({
+      themeMode: "light",
+      setThemeMode: (mode) => set({ themeMode: mode }),
 
-  layoutMode: "card",
-  setLayoutMode: (mode) => set({ layoutMode: mode }),
+      layoutMode: "card",
+      setLayoutMode: (mode) => set({ layoutMode: mode }),
 
-  themeOptions: [
-    { label: "浅色 Light", value: "light" },
-    { label: "深色 Dark", value: "dark" },
-    { label: "蓝色 Blue", value: "blue" },
-    { label: "绿色 Green", value: "green" },
-  ],
-  setThemeOptions: (options) => set({ themeOptions: options }),
+      themeOptions: [
+        { label: "浅色 Light", value: "light" },
+        { label: "深色 Dark", value: "dark" },
+        { label: "蓝色 Blue", value: "blue" },
+        { label: "绿色 Green", value: "green" },
+      ],
+      setThemeOptions: (options) => set({ themeOptions: options }),
 
-  showTabBar: true,
-  setShowTabBar: (visible) => set({ showTabBar: visible }),
-}));
+      showTabBar: true,
+      setShowTabBar: (visible) => set({ showTabBar: visible }),
+    }),
+    {
+      name: "settings-storage", // 存储的 key
+      storage: createJSONStorage(() => AsyncStorage), // 使用 AsyncStorage（React Native）
+    }
+  )
+);
