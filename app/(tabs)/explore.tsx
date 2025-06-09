@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Button, ProgressBar, RadioButton, Text, TextInput, useTheme } from "react-native-paper";
 
-import { useItemsStore } from "@/store/itemStore";
-import { ThemeMode, useSettingsStore } from "@/store/settingsStore";
-
 import LayoutSwitcher from "@/components/LayoutSwitcher/LayoutSwitcher";
 import { useExportItems } from "@/hooks/useExportItems";
+import { useItemsStore } from "@/store/itemStore";
+import { ThemeMode, useSettingsStore } from "@/store/settingsStore";
+import { useRouter } from "expo-router";
 
 // 在组件函数内
 export default function TabTwoScreen() {
+  const router = useRouter();
+
   const theme = useTheme();
   const { clearAllItems, generateTestData } = useItemsStore();
 
@@ -149,23 +151,38 @@ export default function TabTwoScreen() {
         </View>
         <Button
           mode='outlined'
-          onPress={() => setShowTabBar(!showTabBar)}
+          onPress={() => {
+            Alert.alert(showTabBar ? "确认隐藏底部栏？" : "确认显示底部栏？", "该操作将立即生效，并返回首页。", [
+              { text: "取消", style: "cancel" },
+              {
+                text: "确认",
+                onPress: () => {
+                  setShowTabBar(!showTabBar);
+                  router.replace("/");
+                },
+              },
+            ]);
+          }}
           style={styles.button}
           contentStyle={styles.buttonContent}
         >
           {showTabBar ? "隐藏底部栏" : "显示底部栏"}
-        </Button>{" "}
+        </Button>
+
         <Button
           mode='outlined'
-          onPress={() => setShowTabBar(!showTabBar)}
-          style={styles.button}
-          contentStyle={styles.buttonContent}
-        >
-          {showTabBar ? "隐藏底部栏" : "显示底部栏"}
-        </Button>{" "}
-        <Button
-          mode='outlined'
-          onPress={() => setShowTabBar(!showTabBar)}
+          onPress={() => {
+            Alert.alert(showTabBar ? "确认隐藏底部栏？" : "确认显示底部栏？", "该操作将立即生效，并返回首页。", [
+              { text: "取消", style: "cancel" },
+              {
+                text: "确认",
+                onPress: () => {
+                  setShowTabBar(!showTabBar);
+                  router.replace("/");
+                },
+              },
+            ]);
+          }}
           style={styles.button}
           contentStyle={styles.buttonContent}
         >
