@@ -1,9 +1,9 @@
 // components/Home/ItemCard.tsx
-import React from "react";
-import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Card, Text, useTheme, IconButton } from "react-native-paper";
 import { Item } from "@/store/itemStore";
 import dayjs from "dayjs";
+import React from "react";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Card, IconButton, Text, useTheme } from "react-native-paper";
 
 interface Props {
   item: Item;
@@ -11,7 +11,7 @@ interface Props {
   onDelete: (item: Item) => void;
 }
 
-export default function ItemCard({ item, onEdit, onDelete }: Props) {
+export default function ItemCardForSingle({ item, onEdit, onDelete }: Props) {
   const theme = useTheme();
 
   return (
@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: "hidden",
     elevation: 2,
+    // height: "100%",
   },
   content: {
     paddingVertical: 8,

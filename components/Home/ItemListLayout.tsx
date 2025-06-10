@@ -4,7 +4,7 @@ import { useSettingsStore } from "@/store/settingsStore";
 import React from "react";
 import CardLayout from "./CardLayout";
 import DoubleColumnLayout from "./DoubleColumnLayout";
-import ItemList from "./ItemList";
+import SingleColumnLayout from "./SingleColumnLayout";
 
 interface Props {
   items: Item[];
@@ -19,7 +19,7 @@ export default function ItemListLayout(props: Props) {
 
   switch (layoutMode) {
     case "singleColumn":
-      return <ItemList {...props} />;
+      return <SingleColumnLayout {...props} />;
     case "doubleColumn":
       return <DoubleColumnLayout {...props} />;
     default:

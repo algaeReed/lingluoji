@@ -12,7 +12,7 @@ interface ItemListProps {
   onDelete: (item: Item) => void;
 }
 
-export default function ItemList({ items, refreshing, onRefresh, onEdit, onDelete }: ItemListProps) {
+export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdit, onDelete }: ItemListProps) {
   const renderFrontItem = ({ item }: { item: Item }) => {
     console.log("item single", item);
     const days = item.dailyPrices?.length || 0;

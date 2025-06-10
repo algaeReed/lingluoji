@@ -22,12 +22,12 @@ const ProfileScreen = () => {
             <Image source={{ uri: "https://example.com/avatar.jpg" }} style={styles.avatar} />
             <View style={styles.userText}>
               <Title style={styles.userName}>张哲</Title>
-              <Paragraph style={styles.editText}>88 编辑资料</Paragraph>
+              <Paragraph style={styles.editText}>编辑资料</Paragraph>
             </View>
           </View>
 
           <View style={styles.companyInfo}>
-            <Paragraph>南京翼海云峰软件技术有限公司</Paragraph>
+            <Paragraph>零落成泥碾作尘 只有香如故</Paragraph>
             <View style={styles.badgeContainer}>
               <Text style={[styles.badge, { backgroundColor: theme.colors.primary }]}>高级认证</Text>
               <Text style={[styles.badge, { backgroundColor: theme.colors.primary }]}>专业版 1年</Text>

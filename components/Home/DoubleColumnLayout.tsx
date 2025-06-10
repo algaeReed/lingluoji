@@ -1,7 +1,7 @@
 // components/Home/layouts/DoubleColumnLayout.tsx
 import React from "react";
 import { FlatList, RefreshControl, View } from "react-native";
-import ItemCard from "./ItemCard";
+import ItemCardForDouble from "./ItemForDouble";
 
 export default function DoubleColumnLayout({ items, refreshing, onRefresh, onEdit, onDelete }: any) {
   return (
@@ -13,7 +13,7 @@ export default function DoubleColumnLayout({ items, refreshing, onRefresh, onEdi
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       renderItem={({ item }) => (
         <View style={{ flex: 1, margin: 6 }}>
-          <ItemCard item={item} onEdit={onEdit} onDelete={onDelete} />
+          <ItemCardForDouble item={item} onEdit={onEdit} onDelete={onDelete} />
         </View>
       )}
     />
