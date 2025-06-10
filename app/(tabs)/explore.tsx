@@ -5,10 +5,9 @@ import { Button, ProgressBar, RadioButton, Text, TextInput, useTheme } from "rea
 import LayoutSwitcher from "@/components/LayoutSwitcher/LayoutSwitcher";
 import { useExportItems } from "@/hooks/useExportItems";
 import { useItemsStore } from "@/store/itemStore";
-import { ThemeMode, useSettingsStore } from "@/store/settingsStore";
+import { useSettingsStore } from "@/store/settingsStore";
 import { useRouter } from "expo-router";
 
-// 在组件函数内
 export default function TabTwoScreen() {
   const router = useRouter();
 
@@ -21,6 +20,7 @@ export default function TabTwoScreen() {
   const showTabBar = useSettingsStore((state) => state.showTabBar);
   const setShowTabBar = useSettingsStore((state) => state.setShowTabBar);
 
+  // 主题相关状态和操作
   const themeMode = useSettingsStore((state) => state.themeMode);
   const setThemeMode = useSettingsStore((state) => state.setThemeMode);
   const themeOptions = useSettingsStore((state) => state.themeOptions);
@@ -70,9 +70,10 @@ export default function TabTwoScreen() {
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.innerContainer}>
+        {/* 主题切换 */}
         <View>
           <Text style={{ marginBottom: 8 }}>选择主题</Text>
-          <RadioButton.Group onValueChange={(newValue) => setThemeMode(newValue as ThemeMode)} value={themeMode}>
+          <RadioButton.Group onValueChange={(newValue) => setThemeMode(newValue as typeof themeMode)} value={themeMode}>
             {themeOptions.map(({ label, value }) => (
               <View key={value} style={styles.radioRow}>
                 <RadioButton value={value} />
@@ -81,6 +82,7 @@ export default function TabTwoScreen() {
             ))}
           </RadioButton.Group>
         </View>
+
         <TextInput
           label='生成条数'
           value={amount}
@@ -130,7 +132,6 @@ export default function TabTwoScreen() {
             导出 Excel 模版
           </Button>
         </View>
-        {/* 导入按钮组 */}
         <View style={styles.buttonGroup}>
           <Button
             mode='outlined'
@@ -168,26 +169,6 @@ export default function TabTwoScreen() {
         >
           {showTabBar ? "隐藏底部栏" : "显示底部栏"}
         </Button>
-
-        <Button
-          mode='outlined'
-          onPress={() => {
-            Alert.alert(showTabBar ? "确认隐藏底部栏？" : "确认显示底部栏？", "该操作将立即生效，并返回首页。", [
-              { text: "取消", style: "cancel" },
-              {
-                text: "确认",
-                onPress: () => {
-                  setShowTabBar(!showTabBar);
-                  router.replace("/");
-                },
-              },
-            ]);
-          }}
-          style={styles.button}
-          contentStyle={styles.buttonContent}
-        >
-          {showTabBar ? "隐藏底部栏" : "显示底部栏"}
-        </Button>
       </View>
     </ScrollView>
   );
@@ -199,15 +180,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 24,
     paddingVertical: 40,
-    backgroundColor: "transparent", // 这里让背景色由theme控制
+    backgroundColor: "transparent",
   },
   innerContainer: {
-    gap: 24, // 增大间距让布局更舒展
+    gap: 24,
   },
   radioRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12, // 增加点间距，避免挤在一起
+    gap: 12,
     marginBottom: 12,
   },
   input: {
@@ -218,17 +199,16 @@ const styles = StyleSheet.create({
   progress: {
     height: 8,
     borderRadius: 4,
-    marginVertical: 12, // 上下间距更合理
+    marginVertical: 12,
   },
   button: {
     borderRadius: 10,
     marginTop: 8,
-    elevation: 2, // 加点阴影，立体感更强
+    elevation: 2,
   },
   buttonContent: {
     height: 48,
   },
-
   buttonGroup: {
     flexDirection: "row",
     justifyContent: "space-between",

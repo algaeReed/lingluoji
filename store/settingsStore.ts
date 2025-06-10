@@ -1,11 +1,15 @@
-import AsyncStorage from "@react-native-async-storage/async-storage"; // React Native
+// store/settingsStore.ts
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-// 类型定义
-export type LayoutMode = "card" | "singleColumn" | "doubleColumn";
+// 主题模式联合类型
 export type ThemeMode = "light" | "dark" | "blue" | "green";
 
+// 布局模式联合类型
+export type LayoutMode = "card" | "singleColumn" | "doubleColumn";
+
+// 主题选项类型
 export interface ThemeOption {
   label: string;
   value: ThemeMode;
@@ -46,8 +50,8 @@ export const useSettingsStore = create<SettingsStore>()(
       setShowTabBar: (visible) => set({ showTabBar: visible }),
     }),
     {
-      name: "settings-storage", // 存储的 key
-      storage: createJSONStorage(() => AsyncStorage), // 使用 AsyncStorage（React Native）
+      name: "settings-storage",
+      storage: createJSONStorage(() => AsyncStorage),
     }
   )
 );
