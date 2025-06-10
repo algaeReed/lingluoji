@@ -176,7 +176,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 16,
     borderRadius: 12,
-    backgroundColor: "#4a6da7",
     paddingVertical: 6,
   },
   functionCard: {

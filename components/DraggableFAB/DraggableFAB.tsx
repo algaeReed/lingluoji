@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Animated, Dimensions, PanResponder, StyleSheet } from "react-native";
-import { FAB } from "react-native-paper";
+import { FAB, useTheme } from "react-native-paper";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
@@ -15,8 +15,13 @@ type Props = {
 };
 
 export default function DraggableFAB({ autoSnap = true, topMargin = 20, bottomMargin = 120, onPress }: Props) {
-  // 用于保存当前位置，初始为右下角
-  const position = useRef({ x: SCREEN_WIDTH - FAB_SIZE - MARGIN, y: SCREEN_HEIGHT - bottomMargin }).current;
+  const theme = useTheme();
+
+  // 初始位置：右下角
+  const position = useRef({
+    x: SCREEN_WIDTH - FAB_SIZE - MARGIN,
+    y: SCREEN_HEIGHT - bottomMargin,
+  }).current;
 
   // Animated.ValueXY 初始化为当前位置
   const pan = useRef(new Animated.ValueXY(position)).current;
@@ -31,16 +36,7 @@ export default function DraggableFAB({ autoSnap = true, topMargin = 20, bottomMa
         pan.setValue({ x: 0, y: 0 });
       },
 
-      onPanResponderMove: Animated.event(
-        [
-          null,
-          {
-            dx: pan.x,
-            dy: pan.y,
-          },
-        ],
-        { useNativeDriver: false }
-      ),
+      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false }),
 
       onPanResponderRelease: (_, gestureState) => {
         pan.flattenOffset();
@@ -52,8 +48,7 @@ export default function DraggableFAB({ autoSnap = true, topMargin = 20, bottomMa
         // 限制Y轴范围
         const minY = topMargin;
         const maxY = SCREEN_HEIGHT - bottomMargin - FAB_SIZE;
-        if (newY < minY) newY = minY;
-        if (newY > maxY) newY = maxY;
+        newY = Math.max(minY, Math.min(newY, maxY));
 
         // 自动吸附左右边缘
         if (autoSnap) {
@@ -83,7 +78,12 @@ export default function DraggableFAB({ autoSnap = true, topMargin = 20, bottomMa
       style={[styles.fabContainer, { transform: pan.getTranslateTransform() }]}
       {...panResponder.panHandlers}
     >
-      <FAB icon='plus' style={styles.fab} color='#fff' onPress={onPress} />
+      <FAB
+        icon='plus'
+        onPress={onPress}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        color={theme.colors.onPrimary}
+      />
     </Animated.View>
   );
 }
@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   fab: {
-    backgroundColor: "#6200ee",
     elevation: 6,
   },
 });

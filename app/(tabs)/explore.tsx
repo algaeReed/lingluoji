@@ -97,6 +97,7 @@ export default function TabTwoScreen() {
         </Button>
         <Button
           mode='contained-tonal'
+          // mode='outlined'
           onPress={handleGenerate}
           style={styles.button}
           contentStyle={styles.buttonContent}
