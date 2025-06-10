@@ -2,7 +2,7 @@
 import { useSettingsStore } from "@/store/settingsStore";
 import { useShakeDialogStore } from "@/store/shakeDialogStore";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Button, Dialog, Portal, Text } from "react-native-paper";
 
 export default function ShakeDialog() {
@@ -18,17 +18,21 @@ export default function ShakeDialog() {
           <Text>你摇了一下手机！</Text>
         </Dialog.Content>
 
-        <Button
-          mode='outlined'
-          onPress={() => setShowTabBar(!showTabBar)}
-          style={styles.button}
-          contentStyle={styles.buttonContent}
-        >
-          {showTabBar ? "隐藏底部栏" : "显示底部栏"}
-        </Button>
-
+        {/* 自定义按钮布局 */}
         <Dialog.Actions>
-          <Button onPress={() => setVisible(false)}>关闭</Button>
+          <View style={styles.actionsContainer}>
+            <Button
+              // mode='outlined'
+              onPress={() => setShowTabBar(!showTabBar)}
+              style={styles.button}
+              contentStyle={styles.buttonContent}
+            >
+              {showTabBar ? "隐藏底部栏" : "显示底部栏"}
+            </Button>
+            <Button onPress={() => setVisible(false)} style={styles.button} contentStyle={styles.buttonContent}>
+              关闭
+            </Button>
+          </View>
         </Dialog.Actions>
       </Dialog>
     </Portal>
@@ -36,10 +40,18 @@ export default function ShakeDialog() {
 }
 
 const styles = StyleSheet.create({
+  actionsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between", // 左右对齐
+    alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 4,
+  },
   button: {
     borderRadius: 10,
     marginTop: 8,
     elevation: 2,
+    minWidth: 120,
   },
   buttonContent: {
     height: 48,

@@ -1,5 +1,6 @@
+import { FlashList } from "@shopify/flash-list";
 import React, { useCallback, useMemo, useState } from "react";
-import { FlatList, Keyboard, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { Keyboard, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import { Text, TextInput, useTheme } from "react-native-paper";
 import sampleSuggestions from "./suggestion";
 
@@ -83,8 +84,9 @@ export default function AutoCompleteInput({ label = "物品名称", value, onCha
         />
 
         {showSuggestions && filteredSuggestions.length > 0 && (
-          <FlatList
+          <FlashList
             data={filteredSuggestions}
+            estimatedItemSize={40}
             keyExtractor={(item) => item.id}
             style={[styles.suggestionList, { backgroundColor: theme.colors.elevation.level1 }]}
             keyboardShouldPersistTaps='handled'

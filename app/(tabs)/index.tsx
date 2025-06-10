@@ -10,6 +10,7 @@ import ItemListLayout from "@/components/Home/ItemListLayout";
 import SummaryCard from "@/components/SummaryCard/SummaryCard";
 import { Item, useItemsStore } from "@/store/itemStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import * as Haptics from "expo-haptics";
 import EmptyPage from "../../components/EmptyPage";
 
 function Content(props: {
@@ -48,6 +49,8 @@ export default function App() {
   }, [loadItems]);
 
   const onRefresh = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    onRefresh();
     setRefreshing(true);
     await loadItems();
     setRefreshing(false);
