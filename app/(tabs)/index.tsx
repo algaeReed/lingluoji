@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import { Alert, Dimensions, StyleSheet, View } from "react-native";
 import { MD3Theme, Provider as PaperProvider, useTheme } from "react-native-paper";
 
 import DraggableFAB from "@/components/DraggableFAB/DraggableFAB";
@@ -46,11 +46,10 @@ export default function App() {
 
   useEffect(() => {
     loadItems();
-  }, [loadItems]);
+  }, []);
 
   const onRefresh = useCallback(async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    onRefresh();
     setRefreshing(true);
     await loadItems();
     setRefreshing(false);
@@ -151,5 +150,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
     marginTop: 50,
+    borderWidth: 1,
+    height: Dimensions.get("window").height - 100,
   },
 });
