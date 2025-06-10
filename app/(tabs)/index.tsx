@@ -150,7 +150,6 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
     marginTop: 50,
-    borderWidth: 1,
     height: Dimensions.get("window").height - 100,
   },
 });
