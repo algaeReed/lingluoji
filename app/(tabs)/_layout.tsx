@@ -16,8 +16,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
+        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: [
@@ -25,8 +25,14 @@ export default function TabLayout() {
           Platform.select({
             ios: {
               position: "absolute",
+              backgroundColor: "transparent",
+              borderTopWidth: 0.5,
+              borderColor: "rgba(0,0,0,0.1)",
+              elevation: 0,
             },
-            default: {},
+            android: {
+              backgroundColor: "rgba(255,255,255,0.9)",
+            },
           }),
         ],
       }}
@@ -35,21 +41,21 @@ export default function TabLayout() {
         name='index'
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name='house.fill' color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol name='house.fill' size={28} color={color} />,
         }}
       />
       <Tabs.Screen
         name='explore'
         options={{
           title: "Explore",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name='paperplane.fill' color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol name='paperplane.fill' size={28} color={color} />,
         }}
       />
       <Tabs.Screen
         name='profile'
         options={{
-          title: "profile",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name='paperplane.fill' color={color} />,
+          title: "Profile",
+          tabBarIcon: ({ color }) => <IconSymbol name='person.crop.circle.fill' size={28} color={color} />,
         }}
       />
     </Tabs>
