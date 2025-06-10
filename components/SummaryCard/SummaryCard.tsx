@@ -1,5 +1,6 @@
 import React from "react";
-import { StyleSheet, Text, View, useColorScheme } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { useTheme } from "react-native-paper";
 
 type Item = {
   id: string;
@@ -12,22 +13,31 @@ type Props = {
 };
 
 export default function SummaryCard({ items }: Props) {
+  const theme = useTheme();
+
   const totalCount = items.length;
   const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
-  const isDark = useColorScheme() === "dark";
 
   return (
-    <View style={[styles.card, isDark && styles.cardDark]}>
-      <Text style={[styles.title, isDark && styles.titleDark]}>汇总</Text>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: theme.colors.surfaceVariant,
+          shadowColor: theme.dark ? "#000" : "#000", // 可选：暗色模式下阴影颜色保持一致
+        },
+      ]}
+    >
+      <Text style={[styles.title, { color: theme.colors.onSurface }]}>汇总</Text>
 
       <View style={styles.row}>
-        <Text style={[styles.label, isDark && styles.labelDark]}>物品总数</Text>
-        <Text style={[styles.value, isDark && styles.valueDark]}>{totalCount}</Text>
+        <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>物品总数</Text>
+        <Text style={[styles.value, { color: theme.colors.onSurface }]}>{totalCount}</Text>
       </View>
 
       <View style={styles.row}>
-        <Text style={[styles.label, isDark && styles.labelDark]}>总价格</Text>
-        <Text style={[styles.value, isDark && styles.valueDark]}>{totalPrice.toFixed(2)} 元</Text>
+        <Text style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>总价格</Text>
+        <Text style={[styles.value, { color: theme.colors.onSurface }]}>{totalPrice.toFixed(2)} 元</Text>
       </View>
     </View>
   );
@@ -35,28 +45,19 @@ export default function SummaryCard({ items }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#ffffff",
     padding: 20,
     marginHorizontal: 16,
     marginBottom: 20,
     borderRadius: 16,
     elevation: 4,
-    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
-  },
-  cardDark: {
-    backgroundColor: "#1e1e1e",
   },
   title: {
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 12,
-    color: "#333",
-  },
-  titleDark: {
-    color: "#ddd",
   },
   row: {
     flexDirection: "row",
@@ -65,17 +66,9 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: "#666",
-  },
-  labelDark: {
-    color: "#aaa",
   },
   value: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#000",
-  },
-  valueDark: {
-    color: "#fff",
   },
 });

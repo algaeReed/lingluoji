@@ -96,8 +96,7 @@ export default function TabTwoScreen() {
           清除所有数据
         </Button>
         <Button
-          mode='contained-tonal'
-          // mode='outlined'
+          mode='outlined'
           onPress={handleGenerate}
           style={styles.button}
           contentStyle={styles.buttonContent}
