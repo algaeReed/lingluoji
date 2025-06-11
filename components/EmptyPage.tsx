@@ -7,12 +7,7 @@ function EmptyPage() {
 
   return (
     <View style={styles.emptyContainer}>
-      <Ionicons
-        name='checkmark-circle'
-        size={80}
-        color={theme.colors.primary} // 使用主题色，比如主色调
-        style={styles.emptyIcon}
-      />
+      <Ionicons name='infinite-outline' size={80} color={theme.colors.elevation.level1} style={styles.emptyIcon} />
       <Text style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
         暂无数据{"\n"}点击右下角按钮添加新物品
       </Text>

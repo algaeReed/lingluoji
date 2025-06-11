@@ -1,23 +1,23 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
+import { useTheme } from "react-native-paper"; // ✅ 引入 Paper 主题
 
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { useSettingsStore } from "@/store/settingsStore";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const theme = useTheme(); // ✅ 获取当前主题
   const showTabBar = useSettingsStore((state) => state.showTabBar);
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: theme.colors.primary, // ✅ 使用主题颜色
+        tabBarInactiveTintColor: theme.colors.onSurfaceVariant, // 推荐设置
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: [
@@ -25,13 +25,13 @@ export default function TabLayout() {
           Platform.select({
             ios: {
               position: "absolute",
-              backgroundColor: "transparent",
+              backgroundColor: "transparent", // 透明背景交给 TabBarBackground 控制
               borderTopWidth: 0.5,
-              borderColor: "rgba(0,0,0,0.1)",
+              borderColor: theme.colors.outlineVariant, // ✅ 用主题色
               elevation: 0,
             },
             android: {
-              backgroundColor: "rgba(255,255,255,0.9)",
+              backgroundColor: theme.colors.surface, // ✅ 用主题色
             },
           }),
         ],
