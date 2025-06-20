@@ -2,7 +2,9 @@ import { Item } from "@/store/itemStore";
 import React, { useRef } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import Carousel from "react-native-snap-carousel";
-import ItemForCard from "./ItemForCard";
+import ItemForCard from "../single/ItemForCard";
+
+import { animatedStyles2, scrollInterpolator2 } from "../single/interpolators";
 
 const { width } = Dimensions.get("window");
 
@@ -20,37 +22,35 @@ export default function CardLayout({ items, refreshing, onRefresh, onEdit, onDel
   return (
     <View style={{ flex: 1 }}>
       <Carousel
-        layout='tinder'
         ref={carouselRef}
         data={items}
         sliderWidth={width}
-        itemWidth={width}
+        itemWidth={width * 0.75} // 模板2中item宽度可以适当小一点，显示重叠效果更明显
         renderItem={({ item }) => (
           <View style={styles.cardContainer}>
             <ItemForCard item={item} onEdit={onEdit} onDelete={onDelete} />
           </View>
         )}
+        scrollInterpolator={scrollInterpolator2}
+        slideInterpolatedStyle={animatedStyles2}
         inactiveSlideScale={1}
         inactiveSlideOpacity={1}
         enableMomentum={true}
         lockScrollWhileSnapping={true}
-        // 可以打开下面两行实现分页效果
-        pagingEnabled={true}
-        // loop={false} // 根据需要设置是否循环
+        // 可根据需求打开
+        // pagingEnabled={true}
+        // loop={false}
       />
-      {/* RefreshControl 不能直接给 Carousel，需要包在外层 ScrollView */}
-      {/* 这里给用户一个可拉动刷新的简单示例 */}
-      {refreshing && <View style={styles.refreshOverlay}>{/* 可以做一个刷新loading提示 */}</View>}
+      {refreshing && <View style={styles.refreshOverlay}>{/* 刷新loading提示 */}</View>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   cardContainer: {
-    width,
+    width: width * 0.75,
     padding: 16,
     height: 600,
-    // borderWidth: 1,
   },
   refreshOverlay: {
     position: "absolute",

@@ -2,9 +2,9 @@
 import { Item } from "@/store/itemStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import React from "react";
-import CardLayout from "./CardLayout";
-import DoubleColumnLayout from "./DoubleColumnLayout";
-import SingleColumnLayout from "./SingleColumnLayout";
+import CardLayout from "./card/CardLayout";
+import DoubleColumnLayout from "./double/DoubleColumnLayout";
+import SingleColumnLayout from "./single/SingleColumnLayout";
 
 interface Props {
   items: Item[];
