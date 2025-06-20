@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: "hidden",
     elevation: 2,
-    // height: "100%",
+    height: "88%",
   },
   content: {
     paddingVertical: 8,

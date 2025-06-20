@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -18,6 +19,7 @@
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
     "@shopify/flash-list": "^1.8.2",
+    "@types/react-native-snap-carousel": "^3.8.11",
     "dayjs": "^1.11.13",
     "expo": "~53.0.10",
     "expo-blur": "~14.1.5",
@@ -39,6 +41,8 @@
     "expo-system-ui": "~5.0.8",
     "expo-updates": "~0.28.14",
     "expo-web-browser": "~14.1.6",
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.3",
@@ -49,6 +53,7 @@
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
+    "react-native-snap-carousel": "^3.9.1",
     "react-native-swipe-list-view": "^3.2.9",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.20.0",
