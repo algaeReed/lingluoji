@@ -52,27 +52,18 @@ const ProfileScreen = () => {
       <Card style={styles.functionCard}>
         <Card.Content>
           <View style={styles.functionRow}>
-            <Button icon='card-account-details' mode='text' onPress={() => {}}>
-              名片
-            </Button>
-            <Button icon='crown' mode='text' onPress={() => {}}>
-              365会员 未开通
+            <Button icon='upload' mode='text' onPress={() => {}}>
+              导入
             </Button>
           </View>
           <View style={styles.functionRow}>
-            <Button icon='gift' mode='text' onPress={() => {}}>
-              权益 32积分待领取
-            </Button>
-            <Button icon='animation' mode='text' onPress={() => {}}>
-              我的动态
+            <Button icon='download' mode='text' onPress={() => {}}>
+              导出
             </Button>
           </View>
           <View style={styles.functionRow}>
-            <Button icon='wallet' mode='text' onPress={() => {}}>
-              钱包（支付宝）
-            </Button>
-            <Button icon='bookmark' mode='text' onPress={() => {}}>
-              收藏
+            <Button icon='palette' mode='text' onPress={() => {}}>
+              主题
             </Button>
           </View>
         </Card.Content>
@@ -81,18 +72,6 @@ const ProfileScreen = () => {
       {/* 发现和设置部分 */}
       <Card style={styles.menuCard}>
         <Card.Content>
-          <View style={styles.functionRow}>
-            <Button icon='compass' mode='text' onPress={() => {}}>
-              发现
-            </Button>
-          </View>
-
-          <View style={styles.functionRow}>
-            <Button icon='chart-areaspline' mode='text' onPress={() => {}}>
-              广场
-            </Button>
-          </View>
-
           <View style={styles.functionRow}>
             <Button icon='help-circle' mode='text' onPress={() => {}}>
               客服与帮助
