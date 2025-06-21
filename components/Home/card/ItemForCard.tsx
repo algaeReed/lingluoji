@@ -1,232 +1,178 @@
+import BreathingHint from "@/components/BreathingHint/BreathingHint";
 import { Item } from "@/store/itemStore";
 import dayjs from "dayjs";
-import React, { useRef } from "react";
-import { Animated, Image, StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
-import { Card, IconButton, useTheme } from "react-native-paper";
+import React, { useRef, useState } from "react";
+import { Animated, Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
+import { Card, IconButton, Text, useTheme } from "react-native-paper";
 
-interface Props {
+interface FlipCardProps {
   item: Item;
   onEdit: (item: Item) => void;
   onDelete: (item: Item) => void;
 }
 
-const FlipCard: React.FC<Props> = ({ item, onEdit, onDelete }) => {
-  const theme = useTheme();
+// 定义360高度
+const CARD_HEIGHT = 360;
+// 定义图片高度
+const IMAGE_HEIGHT = 140;
+// 定义内容高度;
+const CONTENT_HEIGHT = CARD_HEIGHT - IMAGE_HEIGHT - 30;
 
-  const flipAnimation = useRef(new Animated.Value(0)).current;
-  let flipRotation = 0;
-  flipAnimation.addListener(({ value }) => (flipRotation = value));
+export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
+  const theme = useTheme();
+  const [flipped, setFlipped] = useState(false);
+  const flipAnim = useRef(new Animated.Value(0)).current;
+
+  const frontInterpolate = flipAnim.interpolate({
+    inputRange: [0, 180],
+    outputRange: ["0deg", "180deg"],
+  });
+
+  const backInterpolate = flipAnim.interpolate({
+    inputRange: [0, 180],
+    outputRange: ["180deg", "360deg"],
+  });
 
   const flipToFrontStyle = {
-    transform: [
-      {
-        rotateY: flipAnimation.interpolate({
-          inputRange: [0, 180],
-          outputRange: ["0deg", "180deg"],
-        }),
-      },
-    ],
+    transform: [{ rotateY: frontInterpolate }],
   };
 
   const flipToBackStyle = {
-    transform: [
-      {
-        rotateY: flipAnimation.interpolate({
-          inputRange: [0, 180],
-          outputRange: ["180deg", "360deg"],
-        }),
-      },
-    ],
+    transform: [{ rotateY: backInterpolate }],
   };
 
-  const flipCard = () => {
-    if (flipRotation >= 90) {
-      Animated.timing(flipAnimation, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(flipAnimation, {
-        toValue: 180,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
-    }
+  const handleFlip = () => {
+    Animated.timing(flipAnim, {
+      toValue: flipped ? 0 : 180,
+      duration: 400,
+      useNativeDriver: true,
+    }).start(() => setFlipped(!flipped));
   };
 
   const handleEdit = () => {
-    flipCard();
-    setTimeout(() => onEdit(item), 500);
+    onEdit(item);
   };
 
   const handleDelete = () => {
-    flipCard();
-    setTimeout(() => onDelete(item), 500);
+    onDelete(item);
   };
 
+  const today = dayjs();
   const purchaseDate = dayjs(item.purchaseDate);
-  const daysUsed = Math.max(1, dayjs().diff(purchaseDate, "day"));
-  const dailyPrice = item.price / daysUsed;
+  const daysUsed = Math.max(1, today.diff(purchaseDate, "day"));
+  const dailyCost = (item.price / daysUsed).toFixed(2);
 
   return (
     <View style={styles.container}>
-      <TouchableWithoutFeedback onPress={flipCard}>
-        <View>
-          <Animated.View style={[styles.card, styles.cardFront, flipToFrontStyle, { backfaceVisibility: "hidden" }]}>
-            <Card
-              style={[
-                styles.card,
-                styles.cardFront,
-                flipToFrontStyle,
-                { backfaceVisibility: "hidden" },
-                { backgroundColor: theme.colors.surface },
-              ]}
-            >
-              {item.imageUri && <Image source={{ uri: item.imageUri }} style={styles.cardImage} resizeMode='cover' />}
-              <Card.Content style={styles.cardContent}>
-                <Text style={styles.productName} numberOfLines={1}>
-                  {item.name}
-                </Text>
-                <View style={styles.priceRow}>
-                  <Text style={styles.totalPrice}>¥{item.price.toFixed(2)}</Text>
-                  <Text style={styles.dailyPrice}>(¥{dailyPrice.toFixed(2)}/天)</Text>
-                </View>
-                <View style={styles.dateRow}>
-                  <Text style={styles.dateText}>购买: {purchaseDate.format("YYYY-MM-DD")}</Text>
-                  <Text style={styles.dateText}>已用: {daysUsed}天</Text>
-                </View>
-              </Card.Content>
-              <Text style={styles.hintText}>点击查看操作</Text>
-            </Card>
-          </Animated.View>
-
-          {/* Back Side */}
-          <Animated.View style={[styles.card, styles.cardBack, flipToBackStyle, { backfaceVisibility: "hidden" }]}>
-            <IconButton icon='close' style={styles.backButton} onPress={flipCard} />
-            <View style={styles.backContent}>
-              <Text style={styles.backName} numberOfLines={1}>
+      {/* Front Side */}
+      <TouchableWithoutFeedback onPress={handleFlip}>
+        <Animated.View style={[styles.card, styles.cardFront, flipToFrontStyle]}>
+          <Card style={styles.innerCard} mode='contained'>
+            {item.imageUri && <Image source={{ uri: item.imageUri }} style={styles.image} />}
+            <Card.Content style={styles.cardContent}>
+              <Text variant='titleMedium' numberOfLines={1}>
                 {item.name}
               </Text>
-              <Text style={styles.backPrice}>¥{item.price.toFixed(2)}</Text>
-              <Text style={styles.backDays}>已使用 {daysUsed} 天</Text>
-            </View>
-            <View style={styles.actionButtons}>
-              <IconButton icon='pencil' style={styles.editButton} onPress={handleEdit} />
-              <IconButton icon='delete' style={styles.deleteButton} onPress={handleDelete} />
-            </View>
-          </Animated.View>
-        </View>
+              <Text>总价: ¥{item.price}</Text>
+              <Text>日均: ¥{dailyCost}</Text>
+              <Text>
+                购入: {purchaseDate.format("YYYY-MM-DD")} ({daysUsed}天前)
+              </Text>
+              <BreathingHint />
+              {/* <Text style={styles.hint}>点击查看操作</Text> */}
+            </Card.Content>
+          </Card>
+        </Animated.View>
       </TouchableWithoutFeedback>
+
+      {/* Back Side */}
+      <Animated.View
+        style={[styles.card, styles.cardBack, flipToBackStyle, { backgroundColor: theme.colors.surfaceVariant }]}
+        // 👇 这行确保能响应事件而不会穿透
+        pointerEvents='box-none'
+      >
+        <View style={styles.backMask} pointerEvents='box-none' />
+        <View style={styles.actionContent}>
+          <Text variant='titleMedium' style={styles.nameCenter}>
+            {item.name}
+          </Text>
+          <Text style={styles.priceText}>¥{item.price}</Text>
+          <View style={styles.actionRow}>
+            <IconButton icon='pencil' onPress={handleEdit} />
+            <IconButton icon='delete' onPress={handleDelete} />
+          </View>
+        </View>
+      </Animated.View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    height: "88%",
     width: "100%",
-    perspective: "1000px",
+    height: CARD_HEIGHT,
+    marginVertical: 12,
   },
   card: {
+    position: "absolute",
+    width: "100%",
     height: "100%",
-    borderRadius: 12,
-    backgroundColor: "white",
-    elevation: 4,
+    backfaceVisibility: "hidden",
+    borderRadius: 16,
     overflow: "hidden",
   },
   cardFront: {
-    position: "absolute",
-    width: "100%",
-    top: 0,
-    left: 0,
+    zIndex: 2,
   },
   cardBack: {
-    width: "100%",
-    backgroundColor: "#f8f8f8",
-  },
-  cardImage: {
-    height: 160,
-    width: "100%",
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  cardContent: {
+    zIndex: 3,
+    alignItems: "center",
+    justifyContent: "center",
     padding: 16,
   },
-  productName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 12,
-  },
-  priceRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    marginBottom: 8,
-  },
-  totalPrice: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "red",
-    marginRight: 8,
-  },
-  dailyPrice: {
-    fontSize: 14,
-    color: "grey",
-  },
-  dateRow: {
-    flexDirection: "row",
+  innerCard: {
+    flex: 1,
+    padding: 12,
     justifyContent: "space-between",
   },
-  dateText: {
-    fontSize: 14,
-    color: "grey",
+  cardContent: {
+    height: CONTENT_HEIGHT,
+    justifyContent: "space-between",
   },
-  hintText: {
-    textAlign: "center",
-    color: "grey",
-    padding: 16,
-    marginTop: "auto",
+  image: {
+    height: IMAGE_HEIGHT,
+    width: "100%",
+    borderRadius: 10,
+    marginBottom: 10,
   },
-  backButton: {
-    alignSelf: "flex-end",
-    margin: 8,
+  hint: {
+    // marginTop: 8,
+    // color: "#888",
+    // fontSize: 13,
+    // textAlign: "center",
   },
-  backContent: {
+  actionContent: {
     alignItems: "center",
-    padding: 16,
-    flex: 1,
     justifyContent: "center",
   },
-  backName: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  backPrice: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "red",
-    marginBottom: 8,
-  },
-  backDays: {
+  nameCenter: {
     fontSize: 16,
-    color: "grey",
+    textAlign: "center",
+    fontWeight: "500",
+    marginBottom: 4,
   },
-  actionButtons: {
+  priceText: {
+    fontSize: 15,
+    color: "#444",
+  },
+  actionRow: {
     flexDirection: "row",
     justifyContent: "center",
-    padding: 16,
+    marginTop: 12,
   },
-  editButton: {
-    backgroundColor: "#f0f0f0",
-    marginHorizontal: 8,
-  },
-  deleteButton: {
-    backgroundColor: "#ffebee",
-    marginHorizontal: 8,
+  backMask: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "transparent",
+    zIndex: 1,
   },
 });
-
-export default FlipCard;
