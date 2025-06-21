@@ -1,4 +1,5 @@
 import BreathingHint from "@/components/BreathingHint/BreathingHint";
+import { CARD_HEIGHT, CONTENT_HEIGHT, IMAGE_HEIGHT } from "@/constants/CardLayout";
 import { Item } from "@/store/itemStore";
 import dayjs from "dayjs";
 import React, { useRef, useState } from "react";
@@ -10,13 +11,6 @@ interface FlipCardProps {
   onEdit: (item: Item) => void;
   onDelete: (item: Item) => void;
 }
-
-// 定义360高度
-const CARD_HEIGHT = 360;
-// 定义图片高度
-const IMAGE_HEIGHT = 140;
-// 定义内容高度;
-const CONTENT_HEIGHT = CARD_HEIGHT - IMAGE_HEIGHT - 30;
 
 export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
   const theme = useTheme();

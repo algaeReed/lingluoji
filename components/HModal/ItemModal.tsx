@@ -98,6 +98,14 @@ export default function ItemModal({ visible, onDismiss, onSave, onDelete, initia
         keyboardType='numeric'
         mode='outlined'
         style={styles.input}
+        right={
+          priceText.length > 0 ? (
+            <TextInput.Icon
+              icon='close'
+              onPress={() => setPriceText("")} // 点击清空
+            />
+          ) : null
+        }
       />
 
       <Button mode='outlined' onPress={() => setDatePickerVisible(true)} style={{ marginBottom: 12 }}>

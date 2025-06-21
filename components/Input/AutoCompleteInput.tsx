@@ -80,6 +80,14 @@ export default function AutoCompleteInput({ label = "物品名称", value, onCha
           onChangeText={handleChangeText}
           onBlur={() => setShowSuggestions(false)}
           style={[styles.input, style]}
+          right={
+            value.length > 0 ? (
+              <TextInput.Icon
+                icon='close'
+                onPress={() => handleChangeText("")} // 点击清空
+              />
+            ) : null
+          }
         />
 
         {showSuggestions && filteredSuggestions.length > 0 && (

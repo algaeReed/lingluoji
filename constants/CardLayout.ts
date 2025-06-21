@@ -1,0 +1,8 @@
+// 定义360高度
+const CARD_HEIGHT = 360;
+// 定义图片高度
+const IMAGE_HEIGHT = 140;
+// 定义内容高度;
+const CONTENT_HEIGHT = CARD_HEIGHT - IMAGE_HEIGHT - 30;
+
+export { CARD_HEIGHT, CONTENT_HEIGHT, IMAGE_HEIGHT };
