@@ -8,7 +8,7 @@ import { useItemsStore } from "@/store/itemStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useRouter } from "expo-router";
 
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
   const router = useRouter();
 
   const theme = useTheme();
