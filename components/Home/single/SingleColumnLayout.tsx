@@ -69,11 +69,6 @@ export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdi
       previewOpenDelay={3000}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       contentContainerStyle={{ paddingBottom: 100 }}
-      ListEmptyComponent={
-        <View style={styles.emptyContainer}>
-          <Text>暂无物品，点击右下角 + 添加</Text>
-        </View>
-      }
     />
   );
 }
@@ -123,10 +118,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#888",
     marginTop: 2,
-  },
-  emptyContainer: {
-    paddingTop: 100,
-    alignItems: "center",
   },
 
   rowFront: {

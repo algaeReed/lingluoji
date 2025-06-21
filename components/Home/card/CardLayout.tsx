@@ -2,7 +2,7 @@ import { Item } from "@/store/itemStore";
 import React, { useRef } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import Carousel from "react-native-snap-carousel";
-import ItemForCard from "../single/ItemForCard";
+import ItemForCard from "./ItemForCard";
 
 import { animatedStyles2, scrollInterpolator2 } from "./interpolators";
 

@@ -11,7 +11,7 @@ interface Props {
   onDelete: (item: Item) => void;
 }
 
-export default function ItemCardForSingle({ item, onEdit, onDelete }: Props) {
+export default function ItemForDouble({ item, onEdit, onDelete }: Props) {
   const theme = useTheme();
 
   return (
