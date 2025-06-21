@@ -52,18 +52,16 @@ const ProfileScreen = () => {
       <Card style={styles.functionCard}>
         <Card.Content>
           <View style={styles.functionRow}>
+            <Button icon='palette' mode='text' onPress={() => {}}>
+              主题
+            </Button>
+          </View>
+          <View style={styles.functionRow}>
             <Button icon='upload' mode='text' onPress={() => {}}>
               导入
             </Button>
-          </View>
-          <View style={styles.functionRow}>
             <Button icon='download' mode='text' onPress={() => {}}>
               导出
-            </Button>
-          </View>
-          <View style={styles.functionRow}>
-            <Button icon='palette' mode='text' onPress={() => {}}>
-              主题
             </Button>
           </View>
         </Card.Content>
