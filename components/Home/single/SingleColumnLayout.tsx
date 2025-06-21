@@ -11,6 +11,11 @@ interface ItemListProps {
   onEdit: (item: Item) => void;
   onDelete: (item: Item) => void;
 }
+/**
+ * 单列布局
+ * @param param0
+ * @returns
+ */
 
 export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdit, onDelete }: ItemListProps) {
   const renderFrontItem = ({ item }: { item: Item }) => {

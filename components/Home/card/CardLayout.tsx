@@ -4,7 +4,7 @@ import { Dimensions, StyleSheet, View } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import ItemForCard from "../single/ItemForCard";
 
-import { animatedStyles2, scrollInterpolator2 } from "../single/interpolators";
+import { animatedStyles2, scrollInterpolator2 } from "./interpolators";
 
 const { width } = Dimensions.get("window");
 
@@ -15,7 +15,11 @@ interface CardLayoutProps {
   onEdit: (item: Item) => void;
   onDelete: (item: Item) => void;
 }
-
+/**
+ * 卡片模式布局
+ * @param param0
+ * @returns
+ */
 export default function CardLayout({ items, refreshing, onRefresh, onEdit, onDelete }: CardLayoutProps) {
   const carouselRef = useRef<Carousel<Item>>(null);
 

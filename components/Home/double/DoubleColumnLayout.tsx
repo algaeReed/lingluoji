@@ -3,6 +3,12 @@ import React from "react";
 import { FlatList, RefreshControl, View } from "react-native";
 import ItemCardForDouble from "./ItemForDouble";
 
+// TOODO改为瀑布流
+/**
+ * 双列布局
+ * @param param0
+ * @returns
+ */
 export default function DoubleColumnLayout({ items, refreshing, onRefresh, onEdit, onDelete }: any) {
   return (
     <FlatList
