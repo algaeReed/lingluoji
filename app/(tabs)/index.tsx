@@ -140,7 +140,7 @@ export default function App() {
           />
         )}
 
-        <DraggableFAB onPress={openAddModal} />
+        <DraggableFAB onPress={openAddModal} longPressToCenter={true} />
       </View>
     </PaperProvider>
   );

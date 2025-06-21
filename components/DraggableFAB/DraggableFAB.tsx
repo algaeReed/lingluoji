@@ -4,83 +4,112 @@ import { FAB, useTheme } from "react-native-paper";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
-const FAB_SIZE = 56; // FAB默认尺寸
-const MARGIN = 20; // 距离边缘的距离
+const FAB_SIZE = 56;
+const MARGIN = 20;
 
 type Props = {
   onPress?: () => void;
-  autoSnap?: boolean; // 是否自动吸附左右边缘，默认true
-  topMargin?: number; // 顶部边距，默认20
-  bottomMargin?: number; // 底部边距，默认80
+  autoSnap?: boolean;
+  topMargin?: number;
+  bottomMargin?: number;
+  initialPosition?: "left" | "center" | "right";
+  draggable?: boolean;
+  longPressToCenter?: boolean; // ✅ 新增参数：长按移动到底部中间
 };
 
-export default function DraggableFAB({ autoSnap = true, topMargin = 20, bottomMargin = 120, onPress }: Props) {
+export default function DraggableFAB({
+  autoSnap = true,
+  topMargin = 20,
+  bottomMargin = 140,
+  onPress,
+  initialPosition = "right",
+  draggable = true,
+  longPressToCenter = false, // 默认关闭
+}: Props) {
   const theme = useTheme();
 
-  // 初始位置：右下角
+  const initialX =
+    initialPosition === "left"
+      ? MARGIN
+      : initialPosition === "center"
+      ? (SCREEN_WIDTH - FAB_SIZE) / 2
+      : SCREEN_WIDTH - FAB_SIZE - MARGIN;
+
   const position = useRef({
-    x: SCREEN_WIDTH - FAB_SIZE - MARGIN,
+    x: initialX,
     y: SCREEN_HEIGHT - bottomMargin,
   }).current;
 
-  // Animated.ValueXY 初始化为当前位置
   const pan = useRef(new Animated.ValueXY(position)).current;
 
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponder: () => draggable,
+      onMoveShouldSetPanResponder: () => draggable,
 
       onPanResponderGrant: () => {
         pan.setOffset({ x: position.x, y: position.y });
         pan.setValue({ x: 0, y: 0 });
       },
 
-      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], { useNativeDriver: false }),
+      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
+        useNativeDriver: false,
+      }),
 
       onPanResponderRelease: (_, gestureState) => {
         pan.flattenOffset();
 
-        // 计算新位置
         let newX = position.x + gestureState.dx;
         let newY = position.y + gestureState.dy;
 
-        // 限制Y轴范围
         const minY = topMargin;
         const maxY = SCREEN_HEIGHT - bottomMargin - FAB_SIZE;
         newY = Math.max(minY, Math.min(newY, maxY));
 
-        // 自动吸附左右边缘
         if (autoSnap) {
           newX = newX + FAB_SIZE / 2 < SCREEN_WIDTH / 2 ? MARGIN : SCREEN_WIDTH - FAB_SIZE - MARGIN;
         } else {
-          // 限制X轴范围，防止拖出屏幕
-          if (newX < MARGIN) newX = MARGIN;
-          if (newX > SCREEN_WIDTH - FAB_SIZE - MARGIN) newX = SCREEN_WIDTH - FAB_SIZE - MARGIN;
+          newX = Math.max(MARGIN, Math.min(newX, SCREEN_WIDTH - FAB_SIZE - MARGIN));
         }
 
-        // 用动画回弹到新位置
         Animated.spring(pan, {
           toValue: { x: newX, y: newY },
           useNativeDriver: false,
           bounciness: 8,
         }).start();
 
-        // 保存最新位置
         position.x = newX;
         position.y = newY;
       },
     })
   ).current;
 
+  // ✅ 长按移动到底部中间位置
+  const handleLongPress = () => {
+    if (!longPressToCenter) return;
+
+    const centerX = (SCREEN_WIDTH - FAB_SIZE) / 2;
+    const centerY = SCREEN_HEIGHT - bottomMargin;
+
+    Animated.spring(pan, {
+      toValue: { x: centerX, y: centerY },
+      useNativeDriver: false,
+      bounciness: 10,
+    }).start();
+
+    position.x = centerX;
+    position.y = centerY;
+  };
+
   return (
     <Animated.View
       style={[styles.fabContainer, { transform: pan.getTranslateTransform() }]}
-      {...panResponder.panHandlers}
+      {...(draggable ? panResponder.panHandlers : {})}
     >
       <FAB
         icon='plus'
         onPress={onPress}
+        onLongPress={handleLongPress} // ✅ 绑定长按事件
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         color={theme.colors.onPrimary}
       />
