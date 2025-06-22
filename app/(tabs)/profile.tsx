@@ -69,7 +69,7 @@ const ProfileScreen = () => {
               <Button
                 icon='upload'
                 mode='contained-tonal'
-                onPress={() => router.push("/ImportScreen")}
+                onPress={() => router.push("/ImportExportScreen?mode=import&pulseCount=1")}
                 style={styles.mergeLeft}
                 labelStyle={styles.mergeLabel}
                 buttonColor={theme.colors.primaryContainer}
@@ -79,7 +79,7 @@ const ProfileScreen = () => {
               <Button
                 icon='download'
                 mode='contained-tonal'
-                onPress={() => router.push("/ExportScreen")}
+                onPress={() => router.push("/ImportExportScreen?mode=export&pulseCount=1")}
                 style={styles.mergeRight}
                 labelStyle={styles.mergeLabel}
                 buttonColor={theme.colors.primaryContainer}
