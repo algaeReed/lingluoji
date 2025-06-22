@@ -1,10 +1,10 @@
-// EditProfileScreen.tsx
+import AlertDialog from "@/components/AlertDialog/AlertDialog";
 import { useUserStore } from "@/store/userStore";
 import { useTheme } from "@/theme/ThemeProvider";
 import * as ImagePicker from "expo-image-picker";
 import { router, Stack } from "expo-router";
 import React, { useState } from "react";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { Appbar, Avatar, Button, Card, TextInput } from "react-native-paper";
 
 const EditProfileScreen = () => {
@@ -15,11 +15,19 @@ const EditProfileScreen = () => {
   const [avatarUri, setAvatarUri] = useState(user?.avatarUrl || "");
   const [isLoading, setIsLoading] = useState(false);
 
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const showAlert = (message: string) => {
+    setAlertMessage(message);
+    setAlertVisible(true);
+  };
+
   const handleImagePick = async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("需要权限", "需要相册权限来上传图片");
+        showAlert("需要相册权限来上传图片");
         return;
       }
 
@@ -35,13 +43,13 @@ const EditProfileScreen = () => {
       }
     } catch (error) {
       console.error("Image picker error:", error);
-      Alert.alert("错误", "选择图片时出错");
+      showAlert("选择图片时出错");
     }
   };
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert("请输入姓名", "姓名不能为空");
+      showAlert("姓名不能为空");
       return;
     }
 
@@ -55,7 +63,7 @@ const EditProfileScreen = () => {
       router.back();
     } catch (error) {
       console.error("保存失败:", error);
-      Alert.alert("错误", "保存更改时出错");
+      showAlert("保存更改时出错");
     } finally {
       setIsLoading(false);
     }
@@ -151,6 +159,8 @@ const EditProfileScreen = () => {
           </Card.Content>
         </Card>
       </ScrollView>
+
+      <AlertDialog visible={alertVisible} message={alertMessage} onDismiss={() => setAlertVisible(false)} />
     </View>
   );
 };
