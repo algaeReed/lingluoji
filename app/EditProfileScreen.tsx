@@ -2,7 +2,7 @@
 import { useUserStore } from "@/store/userStore";
 import { useTheme } from "@/theme/ThemeProvider";
 import * as ImagePicker from "expo-image-picker";
-import { router } from "expo-router";
+import { router, Stack } from "expo-router";
 import React, { useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Appbar, Avatar, Button, Card, TextInput } from "react-native-paper";
@@ -63,6 +63,8 @@ const EditProfileScreen = () => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Stack.Screen options={{ headerShown: false }} />
+
       <Appbar.Header style={{ backgroundColor: theme.colors.primary }}>
         <Appbar.BackAction color='white' onPress={() => router.back()} disabled={isLoading} />
         <Appbar.Content title='编辑资料' titleStyle={{ color: "white" }} />
@@ -101,6 +103,14 @@ const EditProfileScreen = () => {
               activeOutlineColor={theme.colors.primary}
               maxLength={20}
               disabled={isLoading}
+              right={
+                name.length > 0 ? (
+                  <TextInput.Icon
+                    icon='close'
+                    onPress={() => setName("")} // 点击清空
+                  />
+                ) : null
+              }
             />
 
             {/* Bio Input */}
@@ -117,6 +127,14 @@ const EditProfileScreen = () => {
               activeOutlineColor={theme.colors.primary}
               maxLength={100}
               disabled={isLoading}
+              right={
+                bio.length > 0 ? (
+                  <TextInput.Icon
+                    icon='close'
+                    onPress={() => setBio("")} // 点击清空
+                  />
+                ) : null
+              }
             />
 
             {/* Save Button */}

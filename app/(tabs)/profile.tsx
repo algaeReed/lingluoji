@@ -2,7 +2,7 @@ import { useUserStore } from "@/store/userStore";
 import { useTheme } from "@/theme/ThemeProvider";
 import { router } from "expo-router";
 import React from "react";
-import { Image, ScrollView, StatusBar, StyleSheet, View } from "react-native";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { Appbar, Button, Card, Paragraph, Text, Title } from "react-native-paper";
 
 const ProfileScreen = () => {
@@ -11,19 +11,15 @@ const ProfileScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <StatusBar translucent backgroundColor='transparent' barStyle='light-content' />
-
-      {/* Custom header */}
-      <View style={styles.header}>
+      <Appbar.Header style={{ backgroundColor: theme.colors.primary, justifyContent: "flex-end" }}>
         <Appbar.Action
-          icon='arrow-left'
+          icon='pencil'
           color='white'
           onPress={() => {
             router.push("/EditProfileScreen");
           }}
         />
-        <Appbar.Action icon='pencil' color='white' onPress={() => {}} />
-      </View>
+      </Appbar.Header>
 
       {/* User info section */}
       <Card style={styles.userCard}>
@@ -31,7 +27,7 @@ const ProfileScreen = () => {
           <View style={styles.userInfo}>
             <Image source={{ uri: user?.avatarUrl || "https://example.com/avatar.jpg" }} style={styles.avatar} />
             <View style={styles.userText}>
-              <Title style={styles.userName}>{user?.name || "张哲"}</Title>
+              <Title style={styles.userName}>{user?.name || "零落集"}</Title>
               <Paragraph
                 style={styles.editText}
                 onPress={() => {
@@ -132,18 +128,12 @@ const ProfileScreen = () => {
   );
 };
 
-// Keep all your existing styles exactly the same
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight,
+    // paddingTop: StatusBar.currentHeight,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 16,
-    paddingTop: 32,
-  },
+
   userCard: {
     margin: 16,
     borderRadius: 16,
