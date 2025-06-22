@@ -4,7 +4,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { router, Stack } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Appbar, RadioButton, Text } from "react-native-paper";
+import { Appbar, RadioButton, Text, TouchableRipple } from "react-native-paper";
 
 export default function ThemeScreen() {
   const { theme } = useTheme();
@@ -33,10 +33,16 @@ export default function ThemeScreen() {
           </Text>
           <RadioButton.Group onValueChange={(value) => setThemeMode(value as typeof themeMode)} value={themeMode}>
             {themeOptions.map(({ label, value }) => (
-              <View key={value} style={styles.radioRow}>
-                <RadioButton value={value} />
-                <Text style={styles.radioLabel}>{label}</Text>
-              </View>
+              <TouchableRipple
+                key={value}
+                onPress={() => setThemeMode(value as typeof themeMode)}
+                rippleColor='rgba(0, 0, 0, .1)'
+              >
+                <View style={styles.radioRow}>
+                  <RadioButton value={value} />
+                  <Text style={styles.radioLabel}>{label}</Text>
+                </View>
+              </TouchableRipple>
             ))}
           </RadioButton.Group>
         </View>
@@ -63,13 +69,24 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: "bold",
   },
+  // radioRow: {
+  //   flexDirection: "row",
+  //   alignItems: "center",
+  //   marginBottom: 12,
+  // },
+  // radioLabel: {
+  //   fontSize: 16,
+  //   marginLeft: 8,
+  // },
+
   radioRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
   radioLabel: {
-    fontSize: 16,
     marginLeft: 8,
+    fontSize: 16,
   },
 });
