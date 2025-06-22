@@ -7,7 +7,8 @@ import { ScrollView, View } from "react-native";
 import { Appbar, Card, RadioButton, Switch, Text, TextInput } from "react-native-paper";
 
 export default function UsageFormatterPage() {
-  const [days, setDays] = useState("420");
+  const [days, setDays] = useState(() => Math.floor(Math.random() * 1000).toString());
+
   const { theme } = useTheme();
 
   // 从store读取forceType, setForceType, isShort, setIsShort
