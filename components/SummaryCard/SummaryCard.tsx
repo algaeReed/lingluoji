@@ -1,6 +1,6 @@
+import { useTheme } from "@/theme/ThemeProvider";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useTheme } from "react-native-paper";
 
 type Item = {
   id: string;
@@ -9,10 +9,10 @@ type Item = {
 };
 
 type Props = {
-  items: Item[];
+  items?: Item[]; // 改成可选，防止没传时崩溃
 };
 
-export default function SummaryCard({ items }: Props) {
+export default function SummaryCard({ items = [] }: Props) {
   const { theme } = useTheme();
 
   const totalCount = items.length;

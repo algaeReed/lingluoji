@@ -1,0 +1,206 @@
+import { resetAllStores } from "@/store";
+import { useTheme } from "@/theme/ThemeProvider";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as FileSystem from "expo-file-system";
+import { router, Stack } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Alert, ScrollView, StyleSheet } from "react-native";
+import { ActivityIndicator, Appbar, Button, List, Text } from "react-native-paper";
+
+type CacheItem = {
+  name: string;
+  size: string;
+  type: "file" | "storage";
+  path?: string;
+};
+
+const CacheSettingsPage = () => {
+  const { theme } = useTheme();
+  const [cacheSize, setCacheSize] = useState<string>("计算中...");
+  const [cacheItems, setCacheItems] = useState<CacheItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isClearing, setIsClearing] = useState(false);
+
+  // 获取缓存数据
+  const fetchCacheData = async () => {
+    setIsLoading(true);
+    try {
+      const items: CacheItem[] = [];
+      let totalSize = 0;
+
+      // 1. 获取文件缓存
+      const cacheDir = FileSystem.cacheDirectory;
+      if (cacheDir) {
+        const files = await FileSystem.readDirectoryAsync(cacheDir);
+        for (const file of files) {
+          const info = await FileSystem.getInfoAsync(`${cacheDir}${file}`);
+          if (info.exists && info.size) {
+            const sizeMB = (info.size / (1024 * 1024)).toFixed(4);
+            items.push({
+              name: file,
+              size: `${sizeMB} MB`,
+              type: "file",
+              path: `${cacheDir}${file}`,
+            });
+            totalSize += info.size;
+          }
+        }
+      }
+
+      // 2. 获取AsyncStorage数据
+      const keys = await AsyncStorage.getAllKeys();
+      const storageItems = await AsyncStorage.multiGet(keys);
+      storageItems.forEach(([key, value]) => {
+        const size = key.length + (value ? value.length : 0);
+        const sizeKB = (size / 1024).toFixed(2);
+        items.push({
+          name: key,
+          size: `${sizeKB} KB`,
+          type: "storage",
+        });
+        totalSize += size;
+      });
+
+      setCacheItems(items.sort((a, b) => parseFloat(b.size) - parseFloat(a.size)));
+      setCacheSize(`${(totalSize / (1024 * 1024)).toFixed(2)} MB`);
+    } catch (error) {
+      console.error("获取缓存数据失败:", error);
+      Alert.alert("错误", "获取缓存数据失败");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 清除单个缓存项
+  const clearCacheItem = async (item: CacheItem) => {
+    try {
+      if (item.type === "file" && item.path) {
+        await FileSystem.deleteAsync(item.path, { idempotent: true });
+      } else {
+        await AsyncStorage.removeItem(item.name);
+      }
+      Alert.alert("成功", `已删除: ${item.name}`);
+      fetchCacheData();
+    } catch (error) {
+      console.error(`删除 ${item.name} 失败:`, error);
+      Alert.alert("错误", `删除 ${item.name} 失败`);
+    }
+  };
+
+  // 清除所有缓存
+  const clearAllCache = async () => {
+    resetAllStores();
+    setIsClearing(true);
+    try {
+      // 1. 清除文件缓存
+      const cacheDir = FileSystem.cacheDirectory;
+      if (cacheDir) {
+        const files = await FileSystem.readDirectoryAsync(cacheDir);
+        await Promise.all(files.map((file) => FileSystem.deleteAsync(`${cacheDir}${file}`, { idempotent: true })));
+      }
+
+      // 2. 清除AsyncStorage
+      await AsyncStorage.clear();
+
+      Alert.alert("成功", "缓存已清除");
+      fetchCacheData();
+    } catch (error) {
+      console.error("清除缓存失败:", error);
+      Alert.alert("错误", "清除缓存失败");
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCacheData();
+  }, []);
+
+  return (
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+
+      <Appbar.Header style={{ backgroundColor: theme.colors.primary }}>
+        <Appbar.BackAction onPress={() => router.back()} color='white' />
+        <Appbar.Content title='缓存设置' color='white' />
+      </Appbar.Header>
+
+      <ScrollView style={styles.container}>
+        <List.Section>
+          <List.Item title='总缓存大小' description={cacheSize} left={() => <List.Icon icon='chart-box' />} />
+        </List.Section>
+
+        {isLoading ? (
+          <ActivityIndicator style={styles.loader} animating={true} />
+        ) : (
+          <>
+            <List.Section>
+              <List.Subheader>缓存数据明细</List.Subheader>
+              {cacheItems.length > 0 ? (
+                cacheItems.map((item, index) => (
+                  <List.Item
+                    key={`${item.type}-${index}`}
+                    title={item.name}
+                    description={`${item.size} (${item.type === "file" ? "文件" : "存储"})`}
+                    left={() => <List.Icon icon={item.type === "file" ? "file" : "database"} />}
+                    right={() => (
+                      <Button mode='text' onPress={() => clearCacheItem(item)} textColor='#ff4444'>
+                        删除
+                      </Button>
+                    )}
+                  />
+                ))
+              ) : (
+                <Text style={styles.emptyText}>暂无缓存数据</Text>
+              )}
+            </List.Section>
+
+            <Button
+              mode='contained'
+              onPress={clearAllCache}
+              loading={isClearing}
+              disabled={isClearing}
+              style={styles.clearButton}
+              labelStyle={styles.clearButtonLabel}
+            >
+              清除所有缓存
+            </Button>
+
+            <Text style={styles.note}>注意：清除缓存会删除临时文件，但不会影响您的账户数据</Text>
+          </>
+        )}
+      </ScrollView>
+    </>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  loader: {
+    marginTop: 20,
+  },
+  clearButton: {
+    marginTop: 20,
+    backgroundColor: "#ff4444",
+  },
+  clearButtonLabel: {
+    color: "white",
+  },
+  note: {
+    marginTop: 20,
+    marginBottom: 30,
+    color: "#666",
+    fontSize: 12,
+    textAlign: "center",
+  },
+  emptyText: {
+    textAlign: "center",
+    padding: 20,
+    color: "#999",
+  },
+});
+
+export default CacheSettingsPage;

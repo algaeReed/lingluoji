@@ -2,8 +2,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
 import { create } from "zustand";
-
-export const STORAGE_KEY = "@items_storage";
+import { STORAGE_KEYS } from "./storageKeys";
 
 export type DailyPrice = {
   date: string;
@@ -28,6 +27,7 @@ type ItemsStore = {
   updateItem: (id: string, updated: Partial<Omit<Item, "id" | "dailyPrices">>) => void;
   deleteItem: (id: string) => void;
   clearAllItems: () => void;
+  reset: () => Promise<void>; // 新增 reset 方法声明
   generateTestData: (count: number, onProgress?: (current: number, total: number) => void) => Promise<void>;
 };
 
@@ -47,7 +47,7 @@ export const useItemsStore = create<ItemsStore>((set, get) => ({
   setItems: (newItems: Item[]) => set({ items: newItems }),
   loadItems: async () => {
     try {
-      const json = await AsyncStorage.getItem(STORAGE_KEY);
+      const json = await AsyncStorage.getItem(STORAGE_KEYS.items); // 使用正确的 STORAGE_KEYS 常量
       if (json) set({ items: JSON.parse(json) });
     } catch (e) {
       console.warn("加载失败", e);
@@ -56,7 +56,7 @@ export const useItemsStore = create<ItemsStore>((set, get) => ({
   saveItems: async () => {
     try {
       const items = get().items;
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      await AsyncStorage.setItem(STORAGE_KEYS.items, JSON.stringify(items)); // 使用正确的 STORAGE_KEYS 常量
     } catch (e) {
       console.warn("保存失败", e);
     }
@@ -96,10 +96,20 @@ export const useItemsStore = create<ItemsStore>((set, get) => ({
   },
   clearAllItems: async () => {
     try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
+      await AsyncStorage.removeItem(STORAGE_KEYS.items); // 使用正确的 STORAGE_KEYS 常量
       set({ items: [] });
     } catch (e) {
       console.error("清除失败:", e);
+      throw e;
+    }
+  },
+
+  reset: async () => {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEYS.items); // 使用正确的 STORAGE_KEYS 常量
+      set({ items: [] });
+    } catch (e) {
+      console.error("重置失败:", e);
       throw e;
     }
   },
@@ -127,7 +137,7 @@ export const useItemsStore = create<ItemsStore>((set, get) => ({
       }
     }
 
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    await AsyncStorage.setItem(STORAGE_KEYS.items, JSON.stringify(items)); // 使用正确的 STORAGE_KEYS 常量
     set({ items });
   },
 }));

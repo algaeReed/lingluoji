@@ -2,6 +2,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { STORAGE_KEYS } from "./storageKeys";
 
 export interface User {
   id: string;
@@ -19,6 +20,7 @@ interface UserStore {
   updateUser: (updates: Partial<User>) => void;
   clearUser: () => void;
   getUser: () => User | undefined;
+  reset: () => Promise<void>; // 新增 reset 方法声明
 }
 
 export const useUserStore = create<UserStore>()(
@@ -36,9 +38,18 @@ export const useUserStore = create<UserStore>()(
       },
       clearUser: () => set({ user: undefined }),
       getUser: () => get().user,
+      reset: async () => {
+        try {
+          await AsyncStorage.removeItem(STORAGE_KEYS.user);
+          set({ user: undefined });
+        } catch (error) {
+          console.error("重置用户数据失败:", error);
+          throw error;
+        }
+      },
     }),
     {
-      name: "user-storage",
+      name: STORAGE_KEYS.user,
       storage: createJSONStorage(() => AsyncStorage),
       version: 1,
     }

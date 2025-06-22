@@ -12,6 +12,8 @@ const ProfileScreen = () => {
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Appbar.Header style={{ backgroundColor: theme.colors.primary, justifyContent: "flex-end" }}>
+        <Appbar.Action icon='menu' color='white' />
+        <Appbar.Content title='我的' titleStyle={{ color: "white" }} />
         <Appbar.Action
           icon='pencil'
           color='white'
@@ -110,7 +112,7 @@ const ProfileScreen = () => {
               icon='cog'
               mode='text'
               onPress={() => {
-                router.push("/UsageFormatterPage");
+                router.push("/SettingsScreen");
               }}
             >
               设置与隐私

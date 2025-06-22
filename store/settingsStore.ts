@@ -3,6 +3,7 @@ import { UsageTimeType } from "@/utils/getUsageTimeDescription";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { STORAGE_KEYS } from "./storageKeys";
 
 // 主题模式联合类型，表示应用支持的主题风格
 export type ThemeMode = "light" | "dark" | "blue" | "green";
@@ -30,6 +31,7 @@ interface SettingsStore {
 
   // 主题选项列表，供 UI 选择
   themeOptions: ThemeOption[];
+
   // 设置主题选项列表的方法（一般初始化即可）
   setThemeOptions: (options: ThemeOption[]) => void;
 
@@ -37,7 +39,6 @@ interface SettingsStore {
   showTabBar: boolean;
   // 设置底部导航栏显示状态的方法
   setShowTabBar: (visible: boolean) => void;
-
   // Usage 时间描述是否使用简写格式，例如 1y 2m
   isShort: boolean;
   // 设置是否使用简写格式
@@ -47,9 +48,10 @@ interface SettingsStore {
   forceType: UsageTimeType | undefined;
   // 设置强制类型
   setForceType: (value: UsageTimeType | undefined) => void;
+
+  reset: () => Promise<void>; // 新增 reset 方法声明
 }
 
-// 创建 zustand store 并持久化到 AsyncStorage 中，数据将保存在本地存储
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set) => ({
@@ -61,7 +63,6 @@ export const useSettingsStore = create<SettingsStore>()(
       layoutMode: "card",
       setLayoutMode: (mode) => set({ layoutMode: mode }),
 
-      // 主题选项初始化列表，支持四种主题
       themeOptions: [
         { label: "浅色 Light", value: "light" },
         { label: "深色 Dark", value: "dark" },
@@ -81,11 +82,33 @@ export const useSettingsStore = create<SettingsStore>()(
       // Usage 时间强制类型默认自动判断（undefined）
       forceType: undefined,
       setForceType: (value) => set({ forceType: value }),
+
+      reset: async () => {
+        try {
+          // 清除 AsyncStorage 中的持久化数据
+          await AsyncStorage.removeItem(STORAGE_KEYS.settings);
+          // 重置状态到初始值
+          set({
+            themeMode: "light",
+            layoutMode: "card",
+            themeOptions: [
+              { label: "浅色 Light", value: "light" },
+              { label: "深色 Dark", value: "dark" },
+              { label: "蓝色 Blue", value: "blue" },
+              { label: "绿色 Green", value: "green" },
+            ],
+            showTabBar: true,
+            isShort: false,
+            forceType: undefined,
+          });
+        } catch (error) {
+          console.error("重置设置失败:", error);
+          throw error;
+        }
+      },
     }),
     {
-      // 本地存储的 key 名称
-      name: "settings-storage",
-      // 使用 AsyncStorage 作为存储介质，支持 JSON 序列化
+      name: STORAGE_KEYS.settings,
       storage: createJSONStorage(() => AsyncStorage),
     }
   )
