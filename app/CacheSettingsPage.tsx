@@ -1,4 +1,5 @@
-import { resetAllStores } from "@/store";
+import { resetAllStores, resetStore } from "@/store";
+import { STORAGE_KEYS } from "@/store/storageKeys";
 import { useTheme } from "@/theme/ThemeProvider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
@@ -78,7 +79,22 @@ const CacheSettingsPage = () => {
         await FileSystem.deleteAsync(item.path, { idempotent: true });
       } else {
         await AsyncStorage.removeItem(item.name);
+
+        // 判断是否为 store 绑定的 key，若是则同时重置该 store
+        const keyToStoreMap: Record<string, keyof typeof STORAGE_KEYS> = {
+          [STORAGE_KEYS.user]: "user",
+          [STORAGE_KEYS.items]: "items",
+          [STORAGE_KEYS.settings]: "settings",
+          [STORAGE_KEYS.shakeDialog]: "shakeDialog",
+        };
+
+        const storeName = keyToStoreMap[item.name];
+        if (storeName) {
+          await resetStore(storeName);
+          console.log(`[Stores] 已重置 ${storeName} store`);
+        }
       }
+
       Alert.alert("成功", `已删除: ${item.name}`);
       fetchCacheData();
     } catch (error) {
@@ -89,18 +105,9 @@ const CacheSettingsPage = () => {
 
   // 清除所有缓存
   const clearAllCache = async () => {
-    resetAllStores();
     setIsClearing(true);
     try {
-      // 1. 清除文件缓存
-      const cacheDir = FileSystem.cacheDirectory;
-      if (cacheDir) {
-        const files = await FileSystem.readDirectoryAsync(cacheDir);
-        await Promise.all(files.map((file) => FileSystem.deleteAsync(`${cacheDir}${file}`, { idempotent: true })));
-      }
-
-      // 2. 清除AsyncStorage
-      await AsyncStorage.clear();
+      await resetAllStores(); // 包括 AsyncStorage 和所有相关 Zustand store 的 reset
 
       Alert.alert("成功", "缓存已清除");
       fetchCacheData();
