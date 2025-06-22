@@ -8,6 +8,7 @@ import AddItemModal from "@/components/HModal/AddItemModal";
 import EditItemModal from "@/components/HModal/EditItemModal";
 import ItemListLayout from "@/components/Home/ItemListLayout";
 import SummaryCard from "@/components/SummaryCard/SummaryCard";
+import useAppUpdate from "@/hooks/useAppUpdate";
 import { Item, useItemsStore } from "@/store/itemStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import * as Haptics from "expo-haptics";
@@ -35,6 +36,8 @@ function Content(props: {
 }
 
 export default function App() {
+  useAppUpdate();
+
   const theme: MD3Theme = useTheme();
   const [refreshing, setRefreshing] = useState(false);
   const [addModalVisible, setAddModalVisible] = useState(false);
