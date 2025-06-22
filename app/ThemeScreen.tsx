@@ -1,3 +1,4 @@
+import LayoutSwitcher from "@/components/LayoutSwitcher/LayoutSwitcher";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useTheme } from "@/theme/ThemeProvider";
 import { router, Stack } from "expo-router";
@@ -39,6 +40,11 @@ export default function ThemeScreen() {
             ))}
           </RadioButton.Group>
         </View>
+
+        <Text variant='titleMedium' style={styles.sectionTitle}>
+          布局模式
+        </Text>
+        <LayoutSwitcher />
       </View>
     </ScrollView>
   );
