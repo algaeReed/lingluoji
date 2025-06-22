@@ -1,5 +1,7 @@
 // components/Home/ItemCard.tsx
 import { Item } from "@/store/itemStore";
+import { useSettingsStore } from "@/store/settingsStore";
+import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
 import dayjs from "dayjs";
 import React from "react";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
@@ -13,7 +15,11 @@ interface Props {
 
 export default function ItemForDouble({ item, onEdit, onDelete }: Props) {
   const theme = useTheme();
+  const isShort = useSettingsStore((state) => state.isShort);
+  const forceType = useSettingsStore((state) => state.forceType);
 
+  const days = item.dailyPrices?.length || 0;
+  const avgPrice = days > 0 ? item.price / days : 0;
   return (
     <TouchableOpacity activeOpacity={0.8} onPress={() => onEdit(item)} onLongPress={() => onDelete(item)}>
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
@@ -25,6 +31,11 @@ export default function ItemForDouble({ item, onEdit, onDelete }: Props) {
           </Text>
           <Text style={styles.priceText}>¥{item.price}</Text>
           <Text style={styles.dateText}>购买日期: {dayjs(item.purchaseDate).format("YYYY-MM-DD")}</Text>
+
+          <Text style={styles.dayCountText}>
+            已过天数:
+            {getUsageTimeDescription(days, forceType, isShort)?.text}
+          </Text>
         </Card.Content>
 
         <View style={styles.actions}>
@@ -58,6 +69,11 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 12,
+    color: "#888",
+    marginTop: 2,
+  },
+  dayCountText: {
+    fontSize: 13,
     color: "#888",
     marginTop: 2,
   },

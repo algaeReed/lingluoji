@@ -1,6 +1,7 @@
 import BreathingHint from "@/components/BreathingHint/BreathingHint";
 import { CARD_HEIGHT, CONTENT_HEIGHT, IMAGE_HEIGHT } from "@/constants/CardLayout";
 import { Item } from "@/store/itemStore";
+import { useSettingsStore } from "@/store/settingsStore";
 import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
 import dayjs from "dayjs";
 import React, { useRef, useState } from "react";
@@ -14,6 +15,9 @@ interface FlipCardProps {
 }
 
 export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
+  const isShort = useSettingsStore((state) => state.isShort);
+  const forceType = useSettingsStore((state) => state.forceType);
+
   const theme = useTheme();
   const [flipped, setFlipped] = useState(false);
   const flipAnim = useRef(new Animated.Value(0)).current;
@@ -75,7 +79,7 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
                 {/* ({daysUsed}天前) */}
               </Text>
 
-              <Text>已过天数: {getUsageTimeDescription(daysUsed)?.text}</Text>
+              <Text>已过天数: {getUsageTimeDescription(daysUsed, forceType, isShort)?.text}</Text>
               <BreathingHint />
               {/* <Text style={styles.hint}>点击查看操作</Text> */}
             </Card.Content>

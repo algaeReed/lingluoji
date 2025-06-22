@@ -1,4 +1,6 @@
 import type { Item } from "@/store/itemStore";
+import { useSettingsStore } from "@/store/settingsStore";
+import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
 import React from "react";
 import { Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Avatar, Card } from "react-native-paper";
@@ -18,6 +20,9 @@ interface ItemListProps {
  */
 
 export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdit, onDelete }: ItemListProps) {
+  const isShort = useSettingsStore((state) => state.isShort);
+  const forceType = useSettingsStore((state) => state.forceType);
+
   const renderFrontItem = ({ item }: { item: Item }) => {
     console.log("item single", item);
     const days = item.dailyPrices?.length || 0;
@@ -37,7 +42,10 @@ export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdi
               <Text style={styles.itemDate}>购买日期: {item.purchaseDate}</Text>
               <Text style={styles.priceText}>总价格: ¥{item.price.toFixed(2)}</Text>
               <Text style={styles.avgPriceText}>日均价格: ¥{avgPrice.toFixed(2)}</Text>
-              <Text style={styles.dayCountText}>已过天数: {days} 天</Text>
+              <Text style={styles.dayCountText}>
+                已过天数:
+                {getUsageTimeDescription(days, forceType, isShort)?.text}
+              </Text>
             </View>
           </View>
         </Card>
