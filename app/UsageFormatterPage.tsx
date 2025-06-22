@@ -26,6 +26,8 @@ export default function UsageFormatterPage() {
 
   return (
     <ScrollView contentContainerStyle={{}}>
+      <Stack.Screen options={{ headerShown: false }} />
+
       <Appbar.Header style={{ backgroundColor: theme.colors.primary }}>
         <Appbar.BackAction color='white' onPress={() => router.back()} />
         <Appbar.Content title='使用天数显示格式' titleStyle={{ color: "white" }} />
@@ -37,8 +39,6 @@ export default function UsageFormatterPage() {
           padding: 16,
         }}
       >
-        <Stack.Screen options={{ headerShown: false }} />
-
         <TextInput
           label='天数'
           value={days}

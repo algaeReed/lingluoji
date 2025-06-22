@@ -1,7 +1,7 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button } from "react-native-paper";
+import { Appbar, Button } from "react-native-paper";
 
 import { useExportItems } from "@/hooks/useExportItems";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -41,54 +41,63 @@ export default function ImportExportScreen() {
   const exportAnimStyle = validMode === "export" ? { transform: [{ scale: pulseAnim }] } : {};
 
   return (
-    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.innerContainer}>
-        {/* 导入标题 */}
-        <View style={styles.sectionHeader}>
-          <View style={[styles.sectionBar, { backgroundColor: theme.colors.primary }]} />
-          <Text style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>导入</Text>
-        </View>
-        <View style={styles.buttonGroup}>
-          <Animated.View style={[styles.flexButton, importAnimStyle]}>
-            <Button mode='outlined' onPress={importFromJSON} contentStyle={styles.buttonContent}>
-              导入 JSON
-            </Button>
-          </Animated.View>
-          <Animated.View style={[styles.flexButton, importAnimStyle]}>
-            <Button mode='outlined' onPress={importFromExcel} contentStyle={styles.buttonContent}>
-              导入 Excel
-            </Button>
-          </Animated.View>
-        </View>
+    <ScrollView
+    //  contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
+      <Stack.Screen options={{ headerShown: false }} />
+      <Appbar.Header style={{ backgroundColor: theme.colors.primary }}>
+        <Appbar.BackAction color='white' onPress={() => router.back()} />
+        <Appbar.Content title='选择主题' titleStyle={{ color: "white" }} />
+      </Appbar.Header>
 
-        {/* 导出标题 */}
-        <View style={[styles.sectionHeader, { marginTop: 32 }]}>
-          <View style={[styles.sectionBar, { backgroundColor: theme.colors.primary }]} />
-          <Text style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>导出</Text>
-        </View>
-        <View style={styles.buttonGroup}>
-          <Animated.View style={[styles.flexButton, exportAnimStyle]}>
-            <Button mode='outlined' onPress={exportToJSON} contentStyle={styles.buttonContent}>
-              导出为 JSON
-            </Button>
-          </Animated.View>
-          <Animated.View style={[styles.flexButton, exportAnimStyle]}>
-            <Button mode='outlined' onPress={exportToExcel} contentStyle={styles.buttonContent}>
-              导出为 Excel
-            </Button>
-          </Animated.View>
-        </View>
-        <View style={styles.buttonGroup}>
-          <Animated.View style={[styles.flexButton, exportAnimStyle]}>
-            <Button mode='outlined' onPress={exportTemplateJSON} contentStyle={styles.buttonContent}>
-              导出 JSON 模版
-            </Button>
-          </Animated.View>
-          <Animated.View style={[styles.flexButton, exportAnimStyle]}>
-            <Button mode='outlined' onPress={exportTemplateExcel} contentStyle={styles.buttonContent}>
-              导出 Excel 模版
-            </Button>
-          </Animated.View>
+      <View style={{ padding: 16 }}>
+        <View style={styles.innerContainer}>
+          {/* 导入标题 */}
+          <View style={styles.sectionHeader}>
+            <View style={[styles.sectionBar, { backgroundColor: theme.colors.primary }]} />
+            <Text style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>导入</Text>
+          </View>
+          <View style={styles.buttonGroup}>
+            <Animated.View style={[styles.flexButton, importAnimStyle]}>
+              <Button mode='outlined' onPress={importFromJSON} contentStyle={styles.buttonContent}>
+                导入 JSON
+              </Button>
+            </Animated.View>
+            <Animated.View style={[styles.flexButton, importAnimStyle]}>
+              <Button mode='outlined' onPress={importFromExcel} contentStyle={styles.buttonContent}>
+                导入 Excel
+              </Button>
+            </Animated.View>
+          </View>
+          {/* 导出标题 */}
+          <View style={[styles.sectionHeader, { marginTop: 32 }]}>
+            <View style={[styles.sectionBar, { backgroundColor: theme.colors.primary }]} />
+            <Text style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>导出</Text>
+          </View>
+          <View style={styles.buttonGroup}>
+            <Animated.View style={[styles.flexButton, exportAnimStyle]}>
+              <Button mode='outlined' onPress={exportToJSON} contentStyle={styles.buttonContent}>
+                导出为 JSON
+              </Button>
+            </Animated.View>
+            <Animated.View style={[styles.flexButton, exportAnimStyle]}>
+              <Button mode='outlined' onPress={exportToExcel} contentStyle={styles.buttonContent}>
+                导出为 Excel
+              </Button>
+            </Animated.View>
+          </View>
+          <View style={styles.buttonGroup}>
+            <Animated.View style={[styles.flexButton, exportAnimStyle]}>
+              <Button mode='outlined' onPress={exportTemplateJSON} contentStyle={styles.buttonContent}>
+                导出 JSON 模版
+              </Button>
+            </Animated.View>
+            <Animated.View style={[styles.flexButton, exportAnimStyle]}>
+              <Button mode='outlined' onPress={exportTemplateExcel} contentStyle={styles.buttonContent}>
+                导出 Excel 模版
+              </Button>
+            </Animated.View>
+          </View>
         </View>
       </View>
     </ScrollView>
