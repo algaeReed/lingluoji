@@ -195,7 +195,6 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: "transparent",
     fontSize: 16,
-    paddingVertical: 6,
   },
   progress: {
     height: 8,
