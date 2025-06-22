@@ -24,7 +24,8 @@ export default function UsageFormatterPage() {
   const result = getUsageTimeDescription(parsedDays, forceType, isShort);
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 90 }}>
+    // <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 90 }}>
+    <ScrollView contentContainerStyle={{ padding: 16 }}>
       <TextInput label='天数' value={days} keyboardType='numeric' onChangeText={setDays} style={{ marginBottom: 16 }} />
 
       <Text variant='titleMedium' style={{ marginBottom: 8 }}>

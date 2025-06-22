@@ -1,9 +1,11 @@
+import { useTheme } from "@/theme/ThemeProvider";
+import { router } from "expo-router";
 import React from "react";
 import { Image, ScrollView, StatusBar, StyleSheet, View } from "react-native";
-import { Appbar, Button, Card, Paragraph, Text, Title, useTheme } from "react-native-paper";
+import { Appbar, Button, Card, Paragraph, Text, Title } from "react-native-paper";
 
 const ProfileScreen = () => {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -52,17 +54,39 @@ const ProfileScreen = () => {
       <Card style={styles.functionCard}>
         <Card.Content>
           <View style={styles.functionRow}>
-            <Button icon='palette' mode='text' onPress={() => {}}>
+            <Button
+              icon='palette'
+              mode='text'
+              onPress={() => {
+                router.push("/ThemeScreen");
+              }}
+            >
               主题
             </Button>
           </View>
           <View style={styles.functionRow}>
-            <Button icon='upload' mode='text' onPress={() => {}}>
-              导入
-            </Button>
-            <Button icon='download' mode='text' onPress={() => {}}>
-              导出
-            </Button>
+            <View style={styles.mergeButtonRow}>
+              <Button
+                icon='upload'
+                mode='contained-tonal'
+                onPress={() => router.push("/ImportScreen")}
+                style={styles.mergeLeft}
+                labelStyle={styles.mergeLabel}
+                buttonColor={theme.colors.primaryContainer}
+              >
+                导入
+              </Button>
+              <Button
+                icon='download'
+                mode='contained-tonal'
+                onPress={() => router.push("/ExportScreen")}
+                style={styles.mergeRight}
+                labelStyle={styles.mergeLabel}
+                buttonColor={theme.colors.primaryContainer}
+              >
+                导出
+              </Button>
+            </View>
           </View>
         </Card.Content>
       </Card>
@@ -71,14 +95,20 @@ const ProfileScreen = () => {
       <Card style={styles.menuCard}>
         <Card.Content>
           <View style={styles.functionRow}>
-            <Button icon='help-circle' mode='text' onPress={() => {}}>
-              客服与帮助
+            <Button
+              icon='cog'
+              mode='text'
+              onPress={() => {
+                router.push("/UsageFormatterPage");
+              }}
+            >
+              设置与隐私
             </Button>
           </View>
 
           <View style={styles.functionRow}>
-            <Button icon='cog' mode='text' onPress={() => {}}>
-              设置与隐私
+            <Button icon='help-circle' mode='text' onPress={() => {}}>
+              客服与帮助
             </Button>
           </View>
         </Card.Content>
@@ -169,6 +199,34 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 16,
     borderRadius: 16,
+  },
+
+  mergeButtonRow: {
+    flexDirection: "row",
+    alignSelf: "center",
+    marginVertical: 8,
+  },
+
+  mergeLeft: {
+    borderTopLeftRadius: 24,
+    borderBottomLeftRadius: 24,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+    flex: 1,
+    marginRight: 1,
+  },
+
+  mergeRight: {
+    borderTopRightRadius: 24,
+    borderBottomRightRadius: 24,
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+    flex: 1,
+    marginLeft: 1,
+  },
+
+  mergeLabel: {
+    fontSize: 14,
   },
 });
 
