@@ -2,9 +2,10 @@ import dayjs from "dayjs";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import { Button, Modal, TextInput, useTheme } from "react-native-paper";
+import { Button, Modal, TextInput } from "react-native-paper";
 import { DatePickerModal } from "react-native-paper-dates";
 
+import { useTheme } from "@/theme/ThemeProvider";
 import AlertDialog from "../AlertDialog/AlertDialog";
 import AutoCompleteInput from "../Input/AutoCompleteInput";
 
@@ -23,7 +24,7 @@ type Props = {
 };
 
 export default function ItemModal({ visible, onDismiss, onSave, onDelete, initialData, isEditing = false }: Props) {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const [name, setName] = useState(initialData?.name ?? "");
   const [priceText, setPriceText] = useState(initialData ? initialData.price.toString() : "");

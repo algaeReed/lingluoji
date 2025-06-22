@@ -1,3 +1,4 @@
+import { useUserStore } from "@/store/userStore";
 import { useTheme } from "@/theme/ThemeProvider";
 import { router } from "expo-router";
 import React from "react";
@@ -6,30 +7,44 @@ import { Appbar, Button, Card, Paragraph, Text, Title } from "react-native-paper
 
 const ProfileScreen = () => {
   const { theme } = useTheme();
+  const { user } = useUserStore();
 
   return (
     <ScrollView contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }]}>
       <StatusBar translucent backgroundColor='transparent' barStyle='light-content' />
 
-      {/* 自定义沉浸式顶部栏 */}
+      {/* Custom header */}
       <View style={styles.header}>
-        <Appbar.Action icon='arrow-left' color='white' onPress={() => {}} />
+        <Appbar.Action
+          icon='arrow-left'
+          color='white'
+          onPress={() => {
+            router.push("/EditProfileScreen");
+          }}
+        />
         <Appbar.Action icon='pencil' color='white' onPress={() => {}} />
       </View>
 
-      {/* 用户信息部分 */}
+      {/* User info section */}
       <Card style={styles.userCard}>
         <Card.Content>
           <View style={styles.userInfo}>
-            <Image source={{ uri: "https://example.com/avatar.jpg" }} style={styles.avatar} />
+            <Image source={{ uri: user?.avatarUrl || "https://example.com/avatar.jpg" }} style={styles.avatar} />
             <View style={styles.userText}>
-              <Title style={styles.userName}>张哲</Title>
-              <Paragraph style={styles.editText}>编辑资料</Paragraph>
+              <Title style={styles.userName}>{user?.name || "张哲"}</Title>
+              <Paragraph
+                style={styles.editText}
+                onPress={() => {
+                  router.push("/EditProfileScreen");
+                }}
+              >
+                编辑资料
+              </Paragraph>
             </View>
           </View>
 
           <View style={styles.companyInfo}>
-            <Paragraph>零落成泥碾作尘 只有香如故</Paragraph>
+            <Paragraph>{user?.bio || "零落成泥碾作尘 只有香如故"}</Paragraph>
             <View style={styles.badgeContainer}>
               <Text style={[styles.badge, { backgroundColor: theme.colors.primary }]}>高级认证</Text>
               <Text style={[styles.badge, { backgroundColor: theme.colors.primary }]}>专业版 1年</Text>
@@ -39,7 +54,7 @@ const ProfileScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* 状态按钮 */}
+      {/* Status button */}
       <Button
         mode='contained'
         style={styles.statusButton}
@@ -50,7 +65,7 @@ const ProfileScreen = () => {
         状态...
       </Button>
 
-      {/* 功能卡片 */}
+      {/* Function cards */}
       <Card style={styles.functionCard}>
         <Card.Content>
           <View style={styles.functionRow}>
@@ -91,7 +106,7 @@ const ProfileScreen = () => {
         </Card.Content>
       </Card>
 
-      {/* 发现和设置部分 */}
+      {/* Settings section */}
       <Card style={styles.menuCard}>
         <Card.Content>
           <View style={styles.functionRow}>
@@ -113,17 +128,15 @@ const ProfileScreen = () => {
           </View>
         </Card.Content>
       </Card>
-      {/* </LinearGradient> */}
     </ScrollView>
   );
 };
 
+// Keep all your existing styles exactly the same
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: "#f5f5f5",
     paddingTop: StatusBar.currentHeight,
-    // backgroundColor: "transparent", // 这里让背景色由theme控制
   },
   header: {
     flexDirection: "row",
@@ -200,13 +213,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 16,
   },
-
   mergeButtonRow: {
     flexDirection: "row",
     alignSelf: "center",
     marginVertical: 8,
   },
-
   mergeLeft: {
     borderTopLeftRadius: 24,
     borderBottomLeftRadius: 24,
@@ -215,7 +226,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 1,
   },
-
   mergeRight: {
     borderTopRightRadius: 24,
     borderBottomRightRadius: 24,
@@ -224,7 +234,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 1,
   },
-
   mergeLabel: {
     fontSize: 14,
   },

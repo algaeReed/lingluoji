@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function SummaryCard({ items }: Props) {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const totalCount = items.length;
   const totalPrice = items.reduce((sum, item) => sum + item.price, 0);

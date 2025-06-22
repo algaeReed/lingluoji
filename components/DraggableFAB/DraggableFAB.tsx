@@ -1,6 +1,7 @@
+import { useTheme } from "@/theme/ThemeProvider";
 import React, { useRef } from "react";
 import { Animated, Dimensions, PanResponder, StyleSheet } from "react-native";
-import { FAB, useTheme } from "react-native-paper";
+import { FAB } from "react-native-paper";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
@@ -26,7 +27,7 @@ export default function DraggableFAB({
   draggable = true,
   longPressToCenter = false, // 默认关闭
 }: Props) {
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   const initialX =
     initialPosition === "left"

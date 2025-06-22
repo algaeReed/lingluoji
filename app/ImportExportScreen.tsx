@@ -1,12 +1,13 @@
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, useTheme } from "react-native-paper";
+import { Button } from "react-native-paper";
 
 import { useExportItems } from "@/hooks/useExportItems";
+import { useTheme } from "@/theme/ThemeProvider";
 
 export default function ImportExportScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { mode, pulseCount } = useLocalSearchParams();
   const validMode = mode === "import" || mode === "export" ? mode : undefined;
   const pulseTimes = typeof pulseCount === "string" ? parseInt(pulseCount) : -1;
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
   flexButton: {
     flex: 1,
     borderRadius: 10,
-    elevation: 2,
+    // elevation: 2,
   },
   buttonContent: {
     height: 48,

@@ -1,9 +1,9 @@
+import { useTheme } from "@/theme/ThemeProvider";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { StyleSheet, Text, View } from "react-native";
-import { useTheme } from "react-native-paper";
 
 function EmptyPage() {
-  const theme = useTheme(); // 获取当前主题
+  const { theme } = useTheme(); // 获取当前主题
 
   return (
     <View style={styles.emptyContainer}>

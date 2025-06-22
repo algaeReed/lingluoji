@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
-import { Button, ProgressBar, RadioButton, Text, TextInput, useTheme } from "react-native-paper";
+import { Button, ProgressBar, RadioButton, Text, TextInput } from "react-native-paper";
 
 import LayoutSwitcher from "@/components/LayoutSwitcher/LayoutSwitcher";
 import { useExportItems } from "@/hooks/useExportItems";
 import { useItemsStore } from "@/store/itemStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useTheme } from "@/theme/ThemeProvider";
 import { useRouter } from "expo-router";
 
 export default function ExploreScreen() {
   const router = useRouter();
 
-  const theme = useTheme();
+  const { theme } = useTheme();
   const { clearAllItems, generateTestData } = useItemsStore();
 
   const { exportToJSON, exportToExcel, importFromExcel, importFromJSON, exportTemplateJSON, exportTemplateExcel } =

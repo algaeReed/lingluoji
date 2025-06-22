@@ -1,6 +1,7 @@
+import { useTheme } from "@/theme/ThemeProvider";
 import React, { useCallback, useMemo, useState } from "react";
 import { FlatList, Keyboard, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
-import { Text, TextInput, useTheme } from "react-native-paper";
+import { Text, TextInput } from "react-native-paper";
 import sampleSuggestions from "./suggestion";
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
 
 export default function AutoCompleteInput({ label = "物品名称", value, onChangeText, style }: Props) {
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   function fuzzyMatch(input: string, target: string) {
     input = input.toLowerCase();

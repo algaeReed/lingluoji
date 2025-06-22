@@ -1,10 +1,11 @@
 import { useSettingsStore } from "@/store/settingsStore";
+import { useTheme } from "@/theme/ThemeProvider";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { RadioButton, Text, useTheme } from "react-native-paper";
+import { RadioButton, Text } from "react-native-paper";
 
 export default function ThemeScreen() {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const themeMode = useSettingsStore((state) => state.themeMode);
   const setThemeMode = useSettingsStore((state) => state.setThemeMode);
   const themeOptions = useSettingsStore((state) => state.themeOptions);

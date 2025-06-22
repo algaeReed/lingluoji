@@ -2,11 +2,12 @@ import BreathingHint from "@/components/BreathingHint/BreathingHint";
 import { CARD_HEIGHT, CONTENT_HEIGHT, IMAGE_HEIGHT } from "@/constants/CardLayout";
 import { Item } from "@/store/itemStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useTheme } from "@/theme/ThemeProvider";
 import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
 import dayjs from "dayjs";
 import React, { useRef, useState } from "react";
 import { Animated, Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
-import { Card, IconButton, Text, useTheme } from "react-native-paper";
+import { Card, IconButton, Text } from "react-native-paper";
 
 interface FlipCardProps {
   item: Item;
@@ -18,7 +19,7 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
   const isShort = useSettingsStore((state) => state.isShort);
   const forceType = useSettingsStore((state) => state.forceType);
 
-  const theme = useTheme();
+  const { theme } = useTheme();
   const [flipped, setFlipped] = useState(false);
   const flipAnim = useRef(new Animated.Value(0)).current;
 

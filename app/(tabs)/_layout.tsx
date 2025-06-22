@@ -1,15 +1,14 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
-import { useTheme } from "react-native-paper"; // ✅ 引入 Paper 主题
 
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { useSettingsStore } from "@/store/settingsStore";
-
+import { useTheme } from "@/theme/ThemeProvider"; // ✅ 引入 Paper 主题
 export default function TabLayout() {
-  const theme = useTheme(); // ✅ 获取当前主题
+  const { theme } = useTheme(); // ✅ 获取当前主题
   const showTabBar = useSettingsStore((state) => state.showTabBar);
 
   return (

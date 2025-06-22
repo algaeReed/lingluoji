@@ -1,11 +1,12 @@
 // components/Home/ItemCard.tsx
 import { Item } from "@/store/itemStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import { useTheme } from "@/theme/ThemeProvider";
 import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
 import dayjs from "dayjs";
 import React from "react";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Card, IconButton, Text, useTheme } from "react-native-paper";
+import { Card, IconButton, Text } from "react-native-paper";
 
 interface Props {
   item: Item;
@@ -14,7 +15,7 @@ interface Props {
 }
 
 export default function ItemForDouble({ item, onEdit, onDelete }: Props) {
-  const theme = useTheme();
+  const { theme } = useTheme();
   const isShort = useSettingsStore((state) => state.isShort);
   const forceType = useSettingsStore((state) => state.forceType);
 
