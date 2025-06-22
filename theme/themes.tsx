@@ -7,7 +7,7 @@ const baseLight = {
   roundness: 8,
   colors: {
     ...PaperLightTheme.colors,
-    primary: "#4CAF50", // 默认绿色按钮（可被后续主题覆盖）
+    primary: "#4CAF50",
     secondary: "#03DAC6",
     background: "#FFFFFF",
     surface: "#F5F5F5",
@@ -38,11 +38,14 @@ export const LightTheme: MD3Theme = {
   ...baseLight,
   colors: {
     ...baseLight.colors,
-    primary: "#6750A4", // Material3 紫色主色
+    primary: "#6750A4",
+    onPrimary: "#FFFFFF",
+    primaryContainer: "#EADDFF", // 保持原配色
+    onPrimaryContainer: "#21005D",
     secondary: "#625B71",
     background: "#FFFBFE",
     surface: "#FFFBFE",
-    surfaceVariant: "#E7E0EC", // 变体色：淡紫
+    surfaceVariant: "#E7E0EC",
   },
 };
 
@@ -51,11 +54,14 @@ export const DarkTheme: MD3Theme = {
   ...baseDark,
   colors: {
     ...baseDark.colors,
-    primary: "#D0BCFF", // 暗色主题下的浅紫色
+    primary: "#D0BCFF",
+    onPrimary: "#000000",
+    primaryContainer: "#4F378B", // 保持原配色
+    onPrimaryContainer: "#EADDFF",
     secondary: "#CCC2DC",
     background: "#1C1B1F",
     surface: "#1C1B1F",
-    surfaceVariant: "#49454F", // 深紫变体色
+    surfaceVariant: "#49454F",
   },
 };
 
@@ -64,11 +70,14 @@ export const BlueTheme: MD3Theme = {
   ...baseLight,
   colors: {
     ...baseLight.colors,
-    primary: "#0B57D0", // 深蓝色主色（Material Blue 40）
-    secondary: "#4F378B", // 与蓝色互补
+    primary: "#0B57D0",
+    onPrimary: "#FFFFFF",
+    primaryContainer: "#A9C8F8", // 微调为稍深的浅蓝
+    onPrimaryContainer: "#001D35",
+    secondary: "#4F378B",
     background: "#EAF1FD",
     surface: "#E8F0FE",
-    surfaceVariant: "#C2E7FF", // 浅蓝色变体
+    surfaceVariant: "#C2E7FF",
   },
 };
 
@@ -77,10 +86,13 @@ export const GreenTheme: MD3Theme = {
   ...baseLight,
   colors: {
     ...baseLight.colors,
-    primary: "#0B8043", // Material Green 40
+    primary: "#0B8043",
+    onPrimary: "#FFFFFF",
+    primaryContainer: "#A4D29F", // 微调为更鲜亮的淡绿
+    onPrimaryContainer: "#00391E",
     secondary: "#4CAF50",
     background: "#E6F4EA",
     surface: "#D9F0DE",
-    surfaceVariant: "#B7DEC5", // 浅绿变体
+    surfaceVariant: "#B7DEC5",
   },
 };
