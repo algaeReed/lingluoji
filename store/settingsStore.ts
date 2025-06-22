@@ -1,4 +1,5 @@
 // store/settingsStore.ts
+import { UsageTimeType } from "@/utils/getUsageTimeDescription";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
@@ -27,6 +28,12 @@ interface SettingsStore {
 
   showTabBar: boolean;
   setShowTabBar: (visible: boolean) => void;
+
+  isShort: boolean;
+  setIsShort: (value: boolean) => void;
+
+  forceType: UsageTimeType | undefined;
+  setForceType: (value: UsageTimeType | undefined) => void;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -48,6 +55,12 @@ export const useSettingsStore = create<SettingsStore>()(
 
       showTabBar: true,
       setShowTabBar: (visible) => set({ showTabBar: visible }),
+
+      isShort: false,
+      setIsShort: (value) => set({ isShort: value }),
+
+      forceType: undefined,
+      setForceType: (value) => set({ forceType: value }),
     }),
     {
       name: "settings-storage",

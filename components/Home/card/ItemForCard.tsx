@@ -1,6 +1,7 @@
 import BreathingHint from "@/components/BreathingHint/BreathingHint";
 import { CARD_HEIGHT, CONTENT_HEIGHT, IMAGE_HEIGHT } from "@/constants/CardLayout";
 import { Item } from "@/store/itemStore";
+import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
 import dayjs from "dayjs";
 import React, { useRef, useState } from "react";
 import { Animated, Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
@@ -70,8 +71,11 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
               <Text>总价: ¥{item.price}</Text>
               <Text>日均: ¥{dailyCost}</Text>
               <Text>
-                购入: {purchaseDate.format("YYYY-MM-DD")} ({daysUsed}天前)
+                购入: {purchaseDate.format("YYYY-MM-DD")}
+                {/* ({daysUsed}天前) */}
               </Text>
+
+              <Text>已过天数: {getUsageTimeDescription(daysUsed)?.text}</Text>
               <BreathingHint />
               {/* <Text style={styles.hint}>点击查看操作</Text> */}
             </Card.Content>
