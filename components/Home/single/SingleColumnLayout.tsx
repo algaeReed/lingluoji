@@ -1,265 +1,193 @@
-import type { Item } from "@/store/itemStore";
-import { useSettingsStore } from "@/store/settingsStore";
-import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
-import * as Haptics from "expo-haptics";
-import React, { useRef, useState } from "react";
-import { Animated, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, Vibration, View } from "react-native";
-import { Avatar, Card } from "react-native-paper";
-import { SwipeListView, SwipeRow } from "react-native-swipe-list-view";
+import React, { useCallback, useState } from "react";
+import { Alert, Dimensions, StyleSheet, Text, View } from "react-native";
+import {
+  GestureState,
+  HandlerStateChangeEvent,
+  PanGestureHandler,
+  PanGestureHandlerGestureEvent,
+} from "react-native-gesture-handler";
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
-interface ItemListProps {
-  items: Item[];
-  refreshing: boolean;
-  onRefresh: () => void;
-  onEdit: (item: Item) => void;
-  onDelete: (item: Item) => void;
-}
+const SCREEN_WIDTH = Dimensions.get("window").width;
 
-// iOS风格的震动反馈
-const triggerHapticFeedback = (type: "light" | "medium" | "heavy" | "selection" = "medium") => {
-  if (Platform.OS === "ios") {
-    // iOS使用Expo Haptics
-    switch (type) {
-      case "light":
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        break;
-      case "medium":
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        break;
-      case "heavy":
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-        break;
-      case "selection":
-        Haptics.selectionAsync();
-        break;
-    }
-  } else {
-    // Android使用Vibration
-    Vibration.vibrate(50);
-  }
-};
+const EDIT_BUTTON_WIDTH = 80;
+const DELETE_BUTTON_INITIAL_WIDTH = 80;
+const DELETE_BUTTON_EXPANDED_WIDTH = 120;
 
-export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdit, onDelete }: ItemListProps) {
-  const isShort = useSettingsStore((state) => state.isShort);
-  const forceType = useSettingsStore((state) => state.forceType);
-  const [swipedRow, setSwipedRow] = useState<string | null>(null);
-  const rowRefs = useRef<{ [key: string]: SwipeRow<any> }>({});
+export default function TwoStageSwipeRow() {
+  const translateX = useSharedValue(0);
+  const [showEdit, setShowEdit] = useState(false);
 
-  const renderFrontItem = ({ item }: { item: Item }) => {
-    const days = item.dailyPrices?.length || 0;
-    const avgPrice = days > 0 ? item.price / days : 0;
+  // 标记是否进入第二阶段滑动
+  const isSecondStage = useSharedValue(false);
 
-    return (
-      <Animated.View style={styles.rowFront}>
-        <Card style={styles.card} elevation={Platform.OS === "ios" ? 0 : 3}>
-          <View style={styles.cardContent}>
-            {item.imageUri ? (
-              <Card.Cover source={{ uri: item.imageUri }} style={styles.cardImage} />
-            ) : (
-              <Avatar.Icon icon='image-off-outline' size={56} style={styles.avatarPlaceholder} />
-            )}
-            <View style={styles.infoContainer}>
-              <Text style={styles.itemName}>{item.name}</Text>
-              <Text style={styles.itemDate}>购买日期: {item.purchaseDate}</Text>
-              <Text style={styles.priceText}>总价格: ¥{item.price.toFixed(2)}</Text>
-              <Text style={styles.avgPriceText}>日均价格: ¥{avgPrice.toFixed(2)}</Text>
-              <Text style={styles.dayCountText}>
-                已过天数:
-                {getUsageTimeDescription(days, forceType, isShort)?.text}
-              </Text>
-            </View>
-          </View>
-        </Card>
-      </Animated.View>
+  const deleteButtonWidth = useSharedValue(DELETE_BUTTON_INITIAL_WIDTH);
+
+  const animatedRowStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  const editButtonStyle = useAnimatedStyle(() => ({
+    opacity: translateX.value <= -EDIT_BUTTON_WIDTH && !isSecondStage.value ? 1 : 0,
+    width: EDIT_BUTTON_WIDTH,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#4caf50",
+  }));
+
+  const deleteButtonStyle = useAnimatedStyle(() => ({
+    width: deleteButtonWidth.value,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f44336",
+  }));
+
+  // 1. 手势移动事件，持续更新 translateX
+  const onGestureEvent = useCallback(
+    (event: PanGestureHandlerGestureEvent) => {
+      const translationX = event.nativeEvent.translationX;
+      if (translationX < 0) {
+        translateX.value = translationX;
+
+        if (translationX <= -EDIT_BUTTON_WIDTH && !isSecondStage.value) {
+          runOnJS(setShowEdit)(true);
+        } else if (translationX > -EDIT_BUTTON_WIDTH && !isSecondStage.value) {
+          runOnJS(setShowEdit)(false);
+        }
+      }
+    },
+    [translateX, isSecondStage]
+  );
+
+  // 2. 手势状态变化事件（onEnded 或 onHandlerStateChange）
+  const onHandlerStateChange = useCallback(
+    (event: HandlerStateChangeEvent) => {
+      // GestureState.END === 5，表示手势结束
+      if (event.nativeEvent.state === GestureState.END) {
+        if (!isSecondStage.value) {
+          // 第一次滑动结束，判断是否停留在编辑按钮显示位置
+          if (translateX.value <= -EDIT_BUTTON_WIDTH) {
+            translateX.value = withTiming(-EDIT_BUTTON_WIDTH);
+            runOnJS(setShowEdit)(true);
+          } else {
+            translateX.value = withTiming(0);
+            runOnJS(setShowEdit)(false);
+          }
+        } else {
+          // 第二次滑动结束，判断是否超过删除按钮展开宽度阈值
+          if (translateX.value <= -DELETE_BUTTON_EXPANDED_WIDTH) {
+            runOnJS(triggerDeleteAnimation)();
+          } else {
+            // 不满足阈值，恢复到第一次滑动位置
+            isSecondStage.value = false;
+            translateX.value = withTiming(-EDIT_BUTTON_WIDTH);
+            deleteButtonWidth.value = DELETE_BUTTON_INITIAL_WIDTH;
+            runOnJS(setShowEdit)(true);
+          }
+        }
+      }
+    },
+    [translateX, isSecondStage, deleteButtonWidth]
+  );
+
+  // 触发删除按钮动画及弹窗
+  const triggerDeleteAnimation = () => {
+    isSecondStage.value = true;
+    setShowEdit(false);
+
+    deleteButtonWidth.value = withTiming(DELETE_BUTTON_EXPANDED_WIDTH, { duration: 200 }, () => {
+      deleteButtonWidth.value = withTiming(DELETE_BUTTON_INITIAL_WIDTH, { duration: 200 }, () => {
+        runOnJS(showConfirmDialog)();
+      });
+    });
+
+    translateX.value = withTiming(-EDIT_BUTTON_WIDTH);
+  };
+
+  const showConfirmDialog = () => {
+    Alert.alert(
+      "确认删除",
+      "确定要删除该项吗？",
+      [
+        {
+          text: "取消",
+          onPress: () => {
+            translateX.value = withTiming(0);
+            isSecondStage.value = false;
+            deleteButtonWidth.value = DELETE_BUTTON_INITIAL_WIDTH;
+            setShowEdit(false);
+          },
+          style: "cancel",
+        },
+        {
+          text: "删除",
+          onPress: () => {
+            Alert.alert("已删除");
+            translateX.value = withTiming(0);
+            isSecondStage.value = false;
+            deleteButtonWidth.value = DELETE_BUTTON_INITIAL_WIDTH;
+            setShowEdit(false);
+          },
+          style: "destructive",
+        },
+      ],
+      { cancelable: false }
     );
   };
 
-  const renderHiddenItem = ({ item }: { item: Item }) => (
-    <View style={styles.rowBack}>
-      {/* 编辑按钮 */}
-      <TouchableOpacity
-        style={[styles.backBtn, styles.editBtn]}
-        onPress={() => {
-          triggerHapticFeedback("selection");
-          onEdit(item);
-          // 关闭滑动行
-          if (rowRefs.current[item.id]) {
-            rowRefs.current[item.id].closeRow();
-          }
-        }}
-        activeOpacity={0.8}
-      >
-        <Text style={styles.editBtnText}>编辑</Text>
-      </TouchableOpacity>
-
-      {/* 删除按钮 - iOS风格 */}
-      <TouchableOpacity
-        style={[styles.backBtn, styles.deleteBtn]}
-        onPress={() => {
-          triggerHapticFeedback("heavy");
-          onDelete(item);
-        }}
-        activeOpacity={0.9}
-      >
-        <Text style={styles.deleteBtnText}>删除</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  const onRowDidOpen = (rowKey: string) => {
-    setSwipedRow(rowKey);
-    // 轻微震动反馈
-    triggerHapticFeedback("light");
-  };
-
-  const onRowDidClose = (rowKey: string) => {
-    if (swipedRow === rowKey) {
-      setSwipedRow(null);
-    }
-  };
-
-  const onSwipeValueChange = (swipeData: any) => {
-    const { key, value } = swipeData;
-
-    // 当滑动到一定程度时给予反馈
-    if (Math.abs(value) > 50 && Math.abs(value) < 60) {
-      triggerHapticFeedback("selection");
-    }
-  };
-
   return (
-    <SwipeListView
-      data={items}
-      keyExtractor={(item) => item.id}
-      renderItem={renderFrontItem}
-      renderHiddenItem={renderHiddenItem}
-      rightOpenValue={-150}
-      disableRightSwipe={true}
-      closeOnRowBeginSwipe={true}
-      closeOnScroll={true}
-      closeOnRowPress={true}
-      swipeToOpenPercent={10}
-      swipeToClosePercent={10}
-      onRowDidOpen={onRowDidOpen}
-      onRowDidClose={onRowDidClose}
-      onSwipeValueChange={onSwipeValueChange}
-      previewRowKey={items.length > 0 ? items[0].id : undefined}
-      previewOpenValue={-40}
-      previewOpenDelay={3000}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          tintColor={Platform.OS === "ios" ? "#007AFF" : undefined}
-        />
-      }
-      contentContainerStyle={{ paddingBottom: 100 }}
-    />
+    <View style={styles.container}>
+      {/* 底部按钮层 */}
+      <View style={styles.buttonsContainer}>
+        {showEdit && (
+          <Animated.View style={[styles.editButton, editButtonStyle]}>
+            <Text style={{ color: "white" }}>编辑</Text>
+          </Animated.View>
+        )}
+        <Animated.View style={[styles.deleteButton, deleteButtonStyle]}>
+          <Text style={{ color: "white" }}>删除</Text>
+        </Animated.View>
+      </View>
+
+      {/* 可滑动内容 */}
+      <PanGestureHandler onGestureEvent={onGestureEvent} onHandlerStateChange={onHandlerStateChange}>
+        <Animated.View style={[styles.row, animatedRowStyle]}>
+          <Text>这是列表项内容</Text>
+        </Animated.View>
+      </PanGestureHandler>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: Platform.OS === "ios" ? 12 : 8,
-    overflow: "hidden",
-    backgroundColor: "#ffffff",
-    // iOS风格阴影
-    ...(Platform.OS === "ios"
-      ? {
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.1,
-          shadowRadius: 3,
-        }
-      : {
-          elevation: 2,
-        }),
+  container: {
+    width: SCREEN_WIDTH,
+    backgroundColor: "#eee",
   },
-  cardContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    backgroundColor: "#ffffff",
-  },
-  cardImage: {
-    width: 56,
-    height: 56,
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  avatarPlaceholder: {
-    backgroundColor: "#f0f0f0",
-    marginRight: 12,
-  },
-  infoContainer: {
-    flex: 1,
-  },
-  itemName: {
-    fontSize: 17,
-    fontWeight: Platform.OS === "ios" ? "600" : "bold",
-    color: "#000",
-    marginBottom: 4,
-  },
-  itemDate: {
-    color: "#8E8E93",
-    fontSize: 14,
-    lineHeight: 18,
-  },
-  priceText: {
-    fontWeight: Platform.OS === "ios" ? "600" : "bold",
-    fontSize: 15,
-    color: "#000",
-    marginTop: 6,
-  },
-  avgPriceText: {
-    fontSize: 14,
-    color: "#34C759",
-    marginTop: 2,
-    fontWeight: Platform.OS === "ios" ? "500" : "600",
-  },
-  dayCountText: {
-    fontSize: 13,
-    color: "#8E8E93",
-    marginTop: 2,
-  },
-
-  rowFront: {
-    backgroundColor: "transparent",
-    paddingHorizontal: 16,
-    marginVertical: Platform.OS === "ios" ? 4 : 6,
-  },
-  rowBack: {
+  buttonsContainer: {
     position: "absolute",
-    top: Platform.OS === "ios" ? 4 : 6,
-    bottom: Platform.OS === "ios" ? 4 : 6,
-    right: 16,
-    left: 16,
+    right: 0,
+    height: 60,
     flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "stretch",
-    borderRadius: Platform.OS === "ios" ? 12 : 8,
-    overflow: "hidden",
   },
-  backBtn: {
-    width: 75,
+  editButton: {
+    height: 60,
+    backgroundColor: "#4caf50",
     justifyContent: "center",
     alignItems: "center",
-    minHeight: 44, // iOS最小触摸目标
+    width: EDIT_BUTTON_WIDTH,
   },
-  editBtn: {
-    backgroundColor: Platform.OS === "ios" ? "#007AFF" : "#2196F3",
+  deleteButton: {
+    height: 60,
+    backgroundColor: "#f44336",
+    justifyContent: "center",
+    alignItems: "center",
+    width: DELETE_BUTTON_INITIAL_WIDTH,
   },
-  deleteBtn: {
-    backgroundColor: Platform.OS === "ios" ? "#FF3B30" : "#F44336",
-  },
-  editBtnText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: Platform.OS === "ios" ? "600" : "bold",
-  },
-  deleteBtnText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: Platform.OS === "ios" ? "600" : "bold",
+  row: {
+    height: 60,
+    backgroundColor: "white",
+    justifyContent: "center",
+    paddingHorizontal: 20,
   },
 });
