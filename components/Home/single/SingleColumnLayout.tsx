@@ -1,10 +1,11 @@
 import type { Item } from "@/store/itemStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
-import React from "react";
-import { Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import * as Haptics from "expo-haptics";
+import React, { useRef, useState } from "react";
+import { Animated, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, Vibration, View } from "react-native";
 import { Avatar, Card } from "react-native-paper";
-import { SwipeListView } from "react-native-swipe-list-view";
+import { SwipeListView, SwipeRow } from "react-native-swipe-list-view";
 
 interface ItemListProps {
   items: Item[];
@@ -13,24 +14,44 @@ interface ItemListProps {
   onEdit: (item: Item) => void;
   onDelete: (item: Item) => void;
 }
-/**
- * 单列布局
- * @param param0
- * @returns
- */
+
+// iOS风格的震动反馈
+const triggerHapticFeedback = (type: "light" | "medium" | "heavy" | "selection" = "medium") => {
+  if (Platform.OS === "ios") {
+    // iOS使用Expo Haptics
+    switch (type) {
+      case "light":
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        break;
+      case "medium":
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        break;
+      case "heavy":
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+        break;
+      case "selection":
+        Haptics.selectionAsync();
+        break;
+    }
+  } else {
+    // Android使用Vibration
+    Vibration.vibrate(50);
+  }
+};
 
 export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdit, onDelete }: ItemListProps) {
   const isShort = useSettingsStore((state) => state.isShort);
   const forceType = useSettingsStore((state) => state.forceType);
+  const [swipedRow, setSwipedRow] = useState<string | null>(null);
+  const rowRefs = useRef<{ [key: string]: SwipeRow<any> }>({});
 
   const renderFrontItem = ({ item }: { item: Item }) => {
-    console.log("item single", item);
     const days = item.dailyPrices?.length || 0;
     const avgPrice = days > 0 ? item.price / days : 0;
 
     return (
-      <View style={styles.rowFront}>
-        <Card style={styles.card} elevation={3}>
+      <Animated.View style={styles.rowFront}>
+        <Card style={styles.card} elevation={Platform.OS === "ios" ? 0 : 3}>
           <View style={styles.cardContent}>
             {item.imageUri ? (
               <Card.Cover source={{ uri: item.imageUri }} style={styles.cardImage} />
@@ -49,20 +70,62 @@ export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdi
             </View>
           </View>
         </Card>
-      </View>
+      </Animated.View>
     );
   };
 
   const renderHiddenItem = ({ item }: { item: Item }) => (
     <View style={styles.rowBack}>
-      <TouchableOpacity style={[styles.backBtn, styles.editBtn]} onPress={() => onEdit(item)}>
-        <Text style={styles.backText}>编辑</Text>
+      {/* 编辑按钮 */}
+      <TouchableOpacity
+        style={[styles.backBtn, styles.editBtn]}
+        onPress={() => {
+          triggerHapticFeedback("selection");
+          onEdit(item);
+          // 关闭滑动行
+          if (rowRefs.current[item.id]) {
+            rowRefs.current[item.id].closeRow();
+          }
+        }}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.editBtnText}>编辑</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={[styles.backBtn, styles.deleteBtn]} onPress={() => onDelete(item)}>
-        <Text style={styles.backText}>删除</Text>
+
+      {/* 删除按钮 - iOS风格 */}
+      <TouchableOpacity
+        style={[styles.backBtn, styles.deleteBtn]}
+        onPress={() => {
+          triggerHapticFeedback("heavy");
+          onDelete(item);
+        }}
+        activeOpacity={0.9}
+      >
+        <Text style={styles.deleteBtnText}>删除</Text>
       </TouchableOpacity>
     </View>
   );
+
+  const onRowDidOpen = (rowKey: string) => {
+    setSwipedRow(rowKey);
+    // 轻微震动反馈
+    triggerHapticFeedback("light");
+  };
+
+  const onRowDidClose = (rowKey: string) => {
+    if (swipedRow === rowKey) {
+      setSwipedRow(null);
+    }
+  };
+
+  const onSwipeValueChange = (swipeData: any) => {
+    const { key, value } = swipeData;
+
+    // 当滑动到一定程度时给予反馈
+    if (Math.abs(value) > 50 && Math.abs(value) < 60) {
+      triggerHapticFeedback("selection");
+    }
+  };
 
   return (
     <SwipeListView
@@ -71,11 +134,25 @@ export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdi
       renderItem={renderFrontItem}
       renderHiddenItem={renderHiddenItem}
       rightOpenValue={-150}
-      disableRightSwipe
+      disableRightSwipe={true}
+      closeOnRowBeginSwipe={true}
+      closeOnScroll={true}
+      closeOnRowPress={true}
+      swipeToOpenPercent={10}
+      swipeToClosePercent={10}
+      onRowDidOpen={onRowDidOpen}
+      onRowDidClose={onRowDidClose}
+      onSwipeValueChange={onSwipeValueChange}
       previewRowKey={items.length > 0 ? items[0].id : undefined}
       previewOpenValue={-40}
       previewOpenDelay={3000}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={Platform.OS === "ios" ? "#007AFF" : undefined}
+        />
+      }
       contentContainerStyle={{ paddingBottom: 100 }}
     />
   );
@@ -83,13 +160,26 @@ export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdi
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 12,
-    overflow: Platform.OS === "android" ? "hidden" : "visible",
+    borderRadius: Platform.OS === "ios" ? 12 : 8,
+    overflow: "hidden",
+    backgroundColor: "#ffffff",
+    // iOS风格阴影
+    ...(Platform.OS === "ios"
+      ? {
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+        }
+      : {
+          elevation: 2,
+        }),
   },
   cardContent: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 12,
+    padding: 16,
+    backgroundColor: "#ffffff",
   },
   cardImage: {
     width: 56,
@@ -98,72 +188,78 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   avatarPlaceholder: {
-    backgroundColor: "#e0e0e0",
+    backgroundColor: "#f0f0f0",
     marginRight: 12,
   },
   infoContainer: {
     flex: 1,
   },
   itemName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 2,
+    fontSize: 17,
+    fontWeight: Platform.OS === "ios" ? "600" : "bold",
+    color: "#000",
+    marginBottom: 4,
   },
   itemDate: {
-    color: "#555",
-    fontSize: 13,
+    color: "#8E8E93",
+    fontSize: 14,
+    lineHeight: 18,
   },
   priceText: {
-    fontWeight: "600",
-    marginTop: 4,
+    fontWeight: Platform.OS === "ios" ? "600" : "bold",
+    fontSize: 15,
+    color: "#000",
+    marginTop: 6,
   },
   avgPriceText: {
-    fontSize: 13,
-    color: "#4caf50",
-    marginTop: 4,
+    fontSize: 14,
+    color: "#34C759",
+    marginTop: 2,
+    fontWeight: Platform.OS === "ios" ? "500" : "600",
   },
   dayCountText: {
     fontSize: 13,
-    color: "#888",
+    color: "#8E8E93",
     marginTop: 2,
   },
 
   rowFront: {
     backgroundColor: "transparent",
     paddingHorizontal: 16,
-    marginVertical: 8,
+    marginVertical: Platform.OS === "ios" ? 4 : 6,
   },
   rowBack: {
     position: "absolute",
-    top: 0,
-    bottom: 0,
+    top: Platform.OS === "ios" ? 4 : 6,
+    bottom: Platform.OS === "ios" ? 4 : 6,
     right: 16,
     left: 16,
     flexDirection: "row",
     justifyContent: "flex-end",
-    alignItems: "center",
-    borderRadius: 12,
+    alignItems: "stretch",
+    borderRadius: Platform.OS === "ios" ? 12 : 8,
     overflow: "hidden",
-    marginVertical: 8,
   },
   backBtn: {
     width: 75,
     justifyContent: "center",
     alignItems: "center",
-    height: "100%",
+    minHeight: 44, // iOS最小触摸目标
   },
   editBtn: {
-    backgroundColor: "#4caf50",
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
+    backgroundColor: Platform.OS === "ios" ? "#007AFF" : "#2196F3",
   },
   deleteBtn: {
-    backgroundColor: "#f44336",
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
+    backgroundColor: Platform.OS === "ios" ? "#FF3B30" : "#F44336",
   },
-  backText: {
-    color: "#fff",
-    fontWeight: "600",
+  editBtnText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: Platform.OS === "ios" ? "600" : "bold",
+  },
+  deleteBtnText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: Platform.OS === "ios" ? "600" : "bold",
   },
 });
