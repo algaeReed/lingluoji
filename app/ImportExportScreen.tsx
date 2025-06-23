@@ -47,7 +47,7 @@ export default function ImportExportScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Appbar.Header style={{ backgroundColor: theme.colors.primary }}>
         <Appbar.BackAction color='white' onPress={() => router.back()} />
-        <Appbar.Content title='选择主题' titleStyle={{ color: "white" }} />
+        <Appbar.Content title='导入和导出' titleStyle={{ color: "white" }} />
       </Appbar.Header>
 
       <View style={{ padding: 16 }}>
