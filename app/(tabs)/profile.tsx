@@ -2,8 +2,8 @@ import { useUserStore } from "@/store/userStore";
 import { useTheme } from "@/theme/ThemeProvider";
 import { router } from "expo-router";
 import React from "react";
-import { Image, ScrollView, StyleSheet, View } from "react-native";
-import { Appbar, Button, Card, Paragraph, Text, Title } from "react-native-paper";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Appbar, Avatar, Button, Card, Paragraph, Text, Title } from "react-native-paper";
 
 const ProfileScreen = () => {
   const { theme } = useTheme();
@@ -27,7 +27,12 @@ const ProfileScreen = () => {
       <Card style={styles.userCard}>
         <Card.Content>
           <View style={styles.userInfo}>
-            <Image source={{ uri: user?.avatarUrl || "https://example.com/avatar.jpg" }} style={styles.avatar} />
+            <Avatar.Image
+              size={120}
+              source={{ uri: user?.avatarUrl || "https://via.placeholder.com/150" }}
+              style={styles.avatar}
+            />
+            {/* <Image source={{ uri: user?.avatarUrl || "https://example.com/avatar.jpg" }} style={styles.avatar} /> */}
             <View style={styles.userText}>
               <Title style={styles.userName}>{user?.name || "零落集"}</Title>
               <Paragraph
@@ -74,7 +79,7 @@ const ProfileScreen = () => {
                 router.push("/ThemeScreen");
               }}
             >
-              主题
+              外观
             </Button>
           </View>
           <View style={styles.functionRow}>

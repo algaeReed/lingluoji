@@ -23,13 +23,13 @@ export default function ThemeScreen() {
           onPress={() => router.back()}
           // disabled={isLoading}
         />
-        <Appbar.Content title='选择主题' titleStyle={{ color: "white" }} />
+        <Appbar.Content title='外观' titleStyle={{ color: "white" }} />
       </Appbar.Header>
 
       <View style={{ padding: 16 }}>
         <View style={styles.section}>
           <Text variant='titleMedium' style={styles.sectionTitle}>
-            外观
+            选择主题
           </Text>
           <RadioButton.Group onValueChange={(value) => setThemeMode(value as typeof themeMode)} value={themeMode}>
             {themeOptions.map(({ label, value }) => (
@@ -69,15 +69,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: "bold",
   },
-  // radioRow: {
-  //   flexDirection: "row",
-  //   alignItems: "center",
-  //   marginBottom: 12,
-  // },
-  // radioLabel: {
-  //   fontSize: 16,
-  //   marginLeft: 8,
-  // },
 
   radioRow: {
     flexDirection: "row",
