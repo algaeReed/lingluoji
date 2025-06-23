@@ -1,193 +1,169 @@
-import React, { useCallback, useState } from "react";
-import { Alert, Dimensions, StyleSheet, Text, View } from "react-native";
-import {
-  GestureState,
-  HandlerStateChangeEvent,
-  PanGestureHandler,
-  PanGestureHandlerGestureEvent,
-} from "react-native-gesture-handler";
-import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import type { Item } from "@/store/itemStore";
+import { useSettingsStore } from "@/store/settingsStore";
+import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
+import React from "react";
+import { Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Avatar, Card } from "react-native-paper";
+import { SwipeListView } from "react-native-swipe-list-view";
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
+interface ItemListProps {
+  items: Item[];
+  refreshing: boolean;
+  onRefresh: () => void;
+  onEdit: (item: Item) => void;
+  onDelete: (item: Item) => void;
+}
+/**
+ * 单列布局
+ * @param param0
+ * @returns
+ */
 
-const EDIT_BUTTON_WIDTH = 80;
-const DELETE_BUTTON_INITIAL_WIDTH = 80;
-const DELETE_BUTTON_EXPANDED_WIDTH = 120;
+export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdit, onDelete }: ItemListProps) {
+  const isShort = useSettingsStore((state) => state.isShort);
+  const forceType = useSettingsStore((state) => state.forceType);
 
-export default function TwoStageSwipeRow() {
-  const translateX = useSharedValue(0);
-  const [showEdit, setShowEdit] = useState(false);
+  const renderFrontItem = ({ item }: { item: Item }) => {
+    console.log("item single", item);
+    const days = item.dailyPrices?.length || 0;
+    const avgPrice = days > 0 ? item.price / days : 0;
 
-  // 标记是否进入第二阶段滑动
-  const isSecondStage = useSharedValue(false);
-
-  const deleteButtonWidth = useSharedValue(DELETE_BUTTON_INITIAL_WIDTH);
-
-  const animatedRowStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-  }));
-
-  const editButtonStyle = useAnimatedStyle(() => ({
-    opacity: translateX.value <= -EDIT_BUTTON_WIDTH && !isSecondStage.value ? 1 : 0,
-    width: EDIT_BUTTON_WIDTH,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#4caf50",
-  }));
-
-  const deleteButtonStyle = useAnimatedStyle(() => ({
-    width: deleteButtonWidth.value,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f44336",
-  }));
-
-  // 1. 手势移动事件，持续更新 translateX
-  const onGestureEvent = useCallback(
-    (event: PanGestureHandlerGestureEvent) => {
-      const translationX = event.nativeEvent.translationX;
-      if (translationX < 0) {
-        translateX.value = translationX;
-
-        if (translationX <= -EDIT_BUTTON_WIDTH && !isSecondStage.value) {
-          runOnJS(setShowEdit)(true);
-        } else if (translationX > -EDIT_BUTTON_WIDTH && !isSecondStage.value) {
-          runOnJS(setShowEdit)(false);
-        }
-      }
-    },
-    [translateX, isSecondStage]
-  );
-
-  // 2. 手势状态变化事件（onEnded 或 onHandlerStateChange）
-  const onHandlerStateChange = useCallback(
-    (event: HandlerStateChangeEvent) => {
-      // GestureState.END === 5，表示手势结束
-      if (event.nativeEvent.state === GestureState.END) {
-        if (!isSecondStage.value) {
-          // 第一次滑动结束，判断是否停留在编辑按钮显示位置
-          if (translateX.value <= -EDIT_BUTTON_WIDTH) {
-            translateX.value = withTiming(-EDIT_BUTTON_WIDTH);
-            runOnJS(setShowEdit)(true);
-          } else {
-            translateX.value = withTiming(0);
-            runOnJS(setShowEdit)(false);
-          }
-        } else {
-          // 第二次滑动结束，判断是否超过删除按钮展开宽度阈值
-          if (translateX.value <= -DELETE_BUTTON_EXPANDED_WIDTH) {
-            runOnJS(triggerDeleteAnimation)();
-          } else {
-            // 不满足阈值，恢复到第一次滑动位置
-            isSecondStage.value = false;
-            translateX.value = withTiming(-EDIT_BUTTON_WIDTH);
-            deleteButtonWidth.value = DELETE_BUTTON_INITIAL_WIDTH;
-            runOnJS(setShowEdit)(true);
-          }
-        }
-      }
-    },
-    [translateX, isSecondStage, deleteButtonWidth]
-  );
-
-  // 触发删除按钮动画及弹窗
-  const triggerDeleteAnimation = () => {
-    isSecondStage.value = true;
-    setShowEdit(false);
-
-    deleteButtonWidth.value = withTiming(DELETE_BUTTON_EXPANDED_WIDTH, { duration: 200 }, () => {
-      deleteButtonWidth.value = withTiming(DELETE_BUTTON_INITIAL_WIDTH, { duration: 200 }, () => {
-        runOnJS(showConfirmDialog)();
-      });
-    });
-
-    translateX.value = withTiming(-EDIT_BUTTON_WIDTH);
-  };
-
-  const showConfirmDialog = () => {
-    Alert.alert(
-      "确认删除",
-      "确定要删除该项吗？",
-      [
-        {
-          text: "取消",
-          onPress: () => {
-            translateX.value = withTiming(0);
-            isSecondStage.value = false;
-            deleteButtonWidth.value = DELETE_BUTTON_INITIAL_WIDTH;
-            setShowEdit(false);
-          },
-          style: "cancel",
-        },
-        {
-          text: "删除",
-          onPress: () => {
-            Alert.alert("已删除");
-            translateX.value = withTiming(0);
-            isSecondStage.value = false;
-            deleteButtonWidth.value = DELETE_BUTTON_INITIAL_WIDTH;
-            setShowEdit(false);
-          },
-          style: "destructive",
-        },
-      ],
-      { cancelable: false }
+    return (
+      <View style={styles.rowFront}>
+        <Card style={styles.card} elevation={3}>
+          <View style={styles.cardContent}>
+            {item.imageUri ? (
+              <Card.Cover source={{ uri: item.imageUri }} style={styles.cardImage} />
+            ) : (
+              <Avatar.Icon icon='image-off-outline' size={56} style={styles.avatarPlaceholder} />
+            )}
+            <View style={styles.infoContainer}>
+              <Text style={styles.itemName}>{item.name}</Text>
+              <Text style={styles.itemDate}>购买日期: {item.purchaseDate}</Text>
+              <Text style={styles.priceText}>总价格: ¥{item.price.toFixed(2)}</Text>
+              <Text style={styles.avgPriceText}>日均价格: ¥{avgPrice.toFixed(2)}</Text>
+              <Text style={styles.dayCountText}>
+                已过天数:
+                {getUsageTimeDescription(days, forceType, isShort)?.text}
+              </Text>
+            </View>
+          </View>
+        </Card>
+      </View>
     );
   };
 
-  return (
-    <View style={styles.container}>
-      {/* 底部按钮层 */}
-      <View style={styles.buttonsContainer}>
-        {showEdit && (
-          <Animated.View style={[styles.editButton, editButtonStyle]}>
-            <Text style={{ color: "white" }}>编辑</Text>
-          </Animated.View>
-        )}
-        <Animated.View style={[styles.deleteButton, deleteButtonStyle]}>
-          <Text style={{ color: "white" }}>删除</Text>
-        </Animated.View>
-      </View>
-
-      {/* 可滑动内容 */}
-      <PanGestureHandler onGestureEvent={onGestureEvent} onHandlerStateChange={onHandlerStateChange}>
-        <Animated.View style={[styles.row, animatedRowStyle]}>
-          <Text>这是列表项内容</Text>
-        </Animated.View>
-      </PanGestureHandler>
+  const renderHiddenItem = ({ item }: { item: Item }) => (
+    <View style={styles.rowBack}>
+      <TouchableOpacity style={[styles.backBtn, styles.editBtn]} onPress={() => onEdit(item)}>
+        <Text style={styles.backText}>编辑</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={[styles.backBtn, styles.deleteBtn]} onPress={() => onDelete(item)}>
+        <Text style={styles.backText}>删除</Text>
+      </TouchableOpacity>
     </View>
+  );
+
+  return (
+    <SwipeListView
+      data={items}
+      keyExtractor={(item) => item.id}
+      renderItem={renderFrontItem}
+      renderHiddenItem={renderHiddenItem}
+      rightOpenValue={-150}
+      disableRightSwipe
+      previewRowKey={items.length > 0 ? items[0].id : undefined}
+      previewOpenValue={-40}
+      previewOpenDelay={3000}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      contentContainerStyle={{ paddingBottom: 100 }}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: SCREEN_WIDTH,
-    backgroundColor: "#eee",
+  card: {
+    borderRadius: 12,
+    overflow: Platform.OS === "android" ? "hidden" : "visible",
   },
-  buttonsContainer: {
-    position: "absolute",
-    right: 0,
-    height: 60,
+  cardContent: {
     flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
   },
-  editButton: {
-    height: 60,
+  cardImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  avatarPlaceholder: {
+    backgroundColor: "#e0e0e0",
+    marginRight: 12,
+  },
+  infoContainer: {
+    flex: 1,
+  },
+  itemName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 2,
+  },
+  itemDate: {
+    color: "#555",
+    fontSize: 13,
+  },
+  priceText: {
+    fontWeight: "600",
+    marginTop: 4,
+  },
+  avgPriceText: {
+    fontSize: 13,
+    color: "#4caf50",
+    marginTop: 4,
+  },
+  dayCountText: {
+    fontSize: 13,
+    color: "#888",
+    marginTop: 2,
+  },
+
+  rowFront: {
+    backgroundColor: "transparent",
+    paddingHorizontal: 16,
+    marginVertical: 8,
+  },
+  rowBack: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    right: 16,
+    left: 16,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    borderRadius: 12,
+    overflow: "hidden",
+    marginVertical: 8,
+  },
+  backBtn: {
+    width: 75,
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+  },
+  editBtn: {
     backgroundColor: "#4caf50",
-    justifyContent: "center",
-    alignItems: "center",
-    width: EDIT_BUTTON_WIDTH,
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
   },
-  deleteButton: {
-    height: 60,
+  deleteBtn: {
     backgroundColor: "#f44336",
-    justifyContent: "center",
-    alignItems: "center",
-    width: DELETE_BUTTON_INITIAL_WIDTH,
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
   },
-  row: {
-    height: 60,
-    backgroundColor: "white",
-    justifyContent: "center",
-    paddingHorizontal: 20,
+  backText: {
+    color: "#fff",
+    fontWeight: "600",
   },
 });
