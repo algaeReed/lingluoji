@@ -36,7 +36,7 @@ function Content(props: {
 }
 
 export default function App() {
-  useAppUpdate();
+  useAppUpdate(false);
 
   const theme: MD3Theme = useTheme();
   const [refreshing, setRefreshing] = useState(false);
