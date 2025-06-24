@@ -1,169 +1,90 @@
-import type { Item } from "@/store/itemStore";
-import { useSettingsStore } from "@/store/settingsStore";
-import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
-import React from "react";
-import { Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Avatar, Card } from "react-native-paper";
-import { SwipeListView } from "react-native-swipe-list-view";
+// SwipeDeleteExample.tsx
 
-interface ItemListProps {
-  items: Item[];
-  refreshing: boolean;
-  onRefresh: () => void;
-  onEdit: (item: Item) => void;
-  onDelete: (item: Item) => void;
-}
-/**
- * 单列布局
- * @param param0
- * @returns
- */
+import React, { useEffect, useState } from "react";
+import { FlatList, Animated as RNAnimated, Text } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SwipeableRow } from "./SwipeableRow";
 
-export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdit, onDelete }: ItemListProps) {
-  const isShort = useSettingsStore((state) => state.isShort);
-  const forceType = useSettingsStore((state) => state.forceType);
+export default function SwipeDeleteExample() {
+  const [data, setData] = useState([
+    { id: "1", text: "第一条手记" },
+    { id: "2", text: "第二条手记" },
+    { id: "3", text: "第三条手记" },
+  ]);
+  const [openRowId, setOpenRowId] = useState<string | null>(null);
+  const [toastText, setToastText] = useState<string | null>(null);
 
-  const renderFrontItem = ({ item }: { item: Item }) => {
-    console.log("item single", item);
-    const days = item.dailyPrices?.length || 0;
-    const avgPrice = days > 0 ? item.price / days : 0;
+  // Toast自动隐藏
+  useEffect(() => {
+    if (toastText !== null) {
+      const timer = setTimeout(() => setToastText(null), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastText]);
 
-    return (
-      <View style={styles.rowFront}>
-        <Card style={styles.card} elevation={3}>
-          <View style={styles.cardContent}>
-            {item.imageUri ? (
-              <Card.Cover source={{ uri: item.imageUri }} style={styles.cardImage} />
-            ) : (
-              <Avatar.Icon icon='image-off-outline' size={56} style={styles.avatarPlaceholder} />
-            )}
-            <View style={styles.infoContainer}>
-              <Text style={styles.itemName}>{item.name}</Text>
-              <Text style={styles.itemDate}>购买日期: {item.purchaseDate}</Text>
-              <Text style={styles.priceText}>总价格: ¥{item.price.toFixed(2)}</Text>
-              <Text style={styles.avgPriceText}>日均价格: ¥{avgPrice.toFixed(2)}</Text>
-              <Text style={styles.dayCountText}>
-                已过天数:
-                {getUsageTimeDescription(days, forceType, isShort)?.text}
-              </Text>
-            </View>
-          </View>
-        </Card>
-      </View>
-    );
+  const onDelete = (id: string) => {
+    setData((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const renderHiddenItem = ({ item }: { item: Item }) => (
-    <View style={styles.rowBack}>
-      <TouchableOpacity style={[styles.backBtn, styles.editBtn]} onPress={() => onEdit(item)}>
-        <Text style={styles.backText}>编辑</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={[styles.backBtn, styles.deleteBtn]} onPress={() => onDelete(item)}>
-        <Text style={styles.backText}>删除</Text>
-      </TouchableOpacity>
-    </View>
+  const onEdit = (id: string) => {
+    alert(`点击了编辑按钮，ID: ${id}`);
+  };
+
+  const showToast = (msg: string) => {
+    setToastText(msg);
+  };
+
+  const renderItem = ({ item }: { item: { id: string; text: string } }) => (
+    <SwipeableRow
+      id={item.id}
+      onDelete={onDelete}
+      onEdit={onEdit}
+      openRowId={openRowId}
+      setOpenRowId={setOpenRowId}
+      showToast={showToast}
+      renderEditButton={() => <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>编辑</Text>}
+      renderDeleteButton={() => <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>删除</Text>}
+    >
+      <Text style={{ fontSize: 18, paddingVertical: 20, paddingHorizontal: 20 }}>{item.text}</Text>
+    </SwipeableRow>
   );
 
   return (
-    <SwipeListView
-      data={items}
-      keyExtractor={(item) => item.id}
-      renderItem={renderFrontItem}
-      renderHiddenItem={renderHiddenItem}
-      rightOpenValue={-150}
-      disableRightSwipe
-      previewRowKey={items.length > 0 ? items[0].id : undefined}
-      previewOpenValue={-40}
-      previewOpenDelay={3000}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      contentContainerStyle={{ paddingBottom: 100 }}
-    />
+    <GestureHandlerRootView style={{ flex: 1, paddingTop: 50 }}>
+      <FlatList data={data} keyExtractor={(item) => item.id} renderItem={renderItem} />
+      {toastText && <Toast message={toastText} />}
+    </GestureHandlerRootView>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: 12,
-    overflow: Platform.OS === "android" ? "hidden" : "visible",
-  },
-  cardContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-  },
-  cardImage: {
-    width: 56,
-    height: 56,
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  avatarPlaceholder: {
-    backgroundColor: "#e0e0e0",
-    marginRight: 12,
-  },
-  infoContainer: {
-    flex: 1,
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 2,
-  },
-  itemDate: {
-    color: "#555",
-    fontSize: 13,
-  },
-  priceText: {
-    fontWeight: "600",
-    marginTop: 4,
-  },
-  avgPriceText: {
-    fontSize: 13,
-    color: "#4caf50",
-    marginTop: 4,
-  },
-  dayCountText: {
-    fontSize: 13,
-    color: "#888",
-    marginTop: 2,
-  },
+function Toast({ message }: { message: string }) {
+  const opacity = React.useRef(new RNAnimated.Value(0)).current;
 
-  rowFront: {
-    backgroundColor: "transparent",
-    paddingHorizontal: 16,
-    marginVertical: 8,
-  },
-  rowBack: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    right: 16,
-    left: 16,
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    borderRadius: 12,
-    overflow: "hidden",
-    marginVertical: 8,
-  },
-  backBtn: {
-    width: 75,
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100%",
-  },
-  editBtn: {
-    backgroundColor: "#4caf50",
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
-  },
-  deleteBtn: {
-    backgroundColor: "#f44336",
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
-  },
-  backText: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-});
+  useEffect(() => {
+    RNAnimated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+    const timer = setTimeout(() => {
+      RNAnimated.timing(opacity, { toValue: 0, duration: 200, useNativeDriver: true }).start();
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [message]);
+
+  return (
+    <RNAnimated.View
+      style={{
+        position: "absolute",
+        bottom: 80,
+        left: 50,
+        right: 50,
+        backgroundColor: "rgba(0,0,0,0.7)",
+        borderRadius: 8,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        alignItems: "center",
+        justifyContent: "center",
+        opacity,
+      }}
+    >
+      <Text style={{ color: "white", fontSize: 14 }}>{message}</Text>
+    </RNAnimated.View>
+  );
+}
