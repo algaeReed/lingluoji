@@ -12,8 +12,8 @@ interface CardLayoutProps {
   items: Item[];
   refreshing: boolean;
   onRefresh: () => void;
-  onEdit: (item: Item) => void;
-  onDelete: (item: Item) => void;
+  onEdit: (item: string) => void;
+  onDelete: (item: string) => void;
 }
 /**
  * 卡片模式布局

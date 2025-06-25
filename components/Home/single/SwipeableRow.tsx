@@ -25,29 +25,33 @@ const RIGHT_SWIPE_CLOSE_DISTANCE = 8; // 右滑关闭阈值
 export type SwipeableRowProps = {
   id: string;
   children: React.ReactNode; // item内容
-  onDelete: (id: string) => void; // 删除回调
   onEdit?: (id: string) => void; // 编辑回调，非必须
   openRowId: string | null;
   setOpenRowId: (id: string | null) => void;
   renderEditButton?: () => React.ReactNode; // 自定义编辑按钮
   renderDeleteButton?: () => React.ReactNode; // 自定义删除按钮
   showToast: (msg: string) => void;
+  isDeleting?: boolean; // 外部控制的删除状态
+  onRequestDelete?: (id: string) => void; // 新增：请求删除回调
+  itemHeight?: number; // 新增：自定义item高度
 };
 
 export function SwipeableRow({
   id,
   children,
-  onDelete,
   onEdit,
   openRowId,
   setOpenRowId,
   renderEditButton,
   renderDeleteButton,
   showToast,
+  onRequestDelete, // 新增prop
+  isDeleting = false, // 默认值
+  itemHeight = 70, // 默认高度70
 }: SwipeableRowProps) {
   // 共享值，动画滑动位置和按钮宽度
   const translateX = useSharedValue(0);
-  const rowHeight = useSharedValue(70);
+  const rowHeight = useSharedValue(itemHeight); // 使用传入的高度
   const deleteBtnWidth = useSharedValue(0);
   const editBtnWidth = useSharedValue(0);
 
@@ -83,6 +87,17 @@ export function SwipeableRow({
     deleteBtnWidth.value = withTiming(DELETE_WIDTH);
     editBtnWidth.value = withTiming(EDIT_WIDTH);
   };
+
+  // 监听外部删除状态变化
+  React.useEffect(() => {
+    if (isDeleting) {
+      rowHeight.value = withTiming(0, { duration: 300 }, (isFinished) => {
+        if (isFinished) {
+          runOnJS(setOpenRowId)(null);
+        }
+      });
+    }
+  }, [isDeleting]);
 
   // 隐藏按钮动画
   const hideButtons = () => {
@@ -183,7 +198,7 @@ export function SwipeableRow({
   const rowAnimatedStyle = useAnimatedStyle(() => ({
     height: rowHeight.value,
     marginVertical: rowHeight.value === 0 ? 0 : 5,
-    opacity: interpolate(rowHeight.value, [0, 70], [0, 1]),
+    opacity: interpolate(rowHeight.value, [0, itemHeight], [0, 1]), // 使用传入的高度
   }));
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -201,19 +216,35 @@ export function SwipeableRow({
 
   // 删除按钮点击
   const onPressDelete = () => {
-    Alert.alert("确认删除这条记录？", "", [
-      { text: "取消", style: "cancel", onPress: () => resetRow() },
-      {
-        text: "删除",
-        style: "destructive",
-        onPress: () => {
-          rowHeight.value = withTiming(0, { duration: 300 }, () => {
-            onDelete(id);
-            setOpenRowId(null);
-          });
-        },
-      },
-    ]);
+    if (onRequestDelete) {
+      // 如果有外部删除请求处理器，就调用它
+      onRequestDelete(id);
+    }
+
+    // rowHeight.value = withTiming(0, { duration: 300 }, (isFinished) => {
+    //   if (isFinished) {
+    //     // 确保动画完成后才调用删除
+    //     runOnJS(onDelete)(id);
+    //     runOnJS(setOpenRowId)(null);
+    //   }
+    // });
+    return;
+    // Alert.alert("确认删除这条记录？", "", [
+    //   { text: "取消", style: "cancel", onPress: () => resetRow() },
+    //   {
+    //     text: "删除",
+    //     style: "destructive",
+    //     onPress: () => {
+    //       rowHeight.value = withTiming(0, { duration: 300 }, (isFinished) => {
+    //         if (isFinished) {
+    //           // 确保动画完成后才调用删除
+    //           runOnJS(onDelete)(id);
+    //           runOnJS(setOpenRowId)(null);
+    //         }
+    //       });
+    //     },
+    //   },
+    // ]);
   };
 
   // 编辑按钮点击
@@ -258,10 +289,8 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   row: {
-    height: 70,
     backgroundColor: "#f8f8f8",
     justifyContent: "center",
-    paddingHorizontal: 20,
     borderRadius: 8,
   },
   hiddenButtons: {

@@ -1,20 +1,32 @@
-// SwipeDeleteExample.tsx
-
+import { Item } from "@/store/itemStore";
+import { useTheme } from "@/theme/ThemeProvider";
 import React, { useEffect, useState } from "react";
 import { FlatList, Animated as RNAnimated, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Provider as PaperProvider } from "react-native-paper";
+import ItemCard from "./ItemCard";
 import { SwipeableRow } from "./SwipeableRow";
 
-export default function SwipeDeleteExample() {
-  const [data, setData] = useState([
-    { id: "1", text: "第一条手记" },
-    { id: "2", text: "第二条手记" },
-    { id: "3", text: "第三条手记" },
-  ]);
+interface ItemListProps {
+  items: Item[];
+  refreshing: boolean;
+  onRefresh: () => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
+}
+/**
+ * 单列布局
+ * @param param0
+ * @returns
+ */
+export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdit, onDelete }: ItemListProps) {
+  // export default function SingleColumnLayout() {
+  const { theme } = useTheme();
+  const [deletingId, setDeletingId] = useState(null);
+
   const [openRowId, setOpenRowId] = useState<string | null>(null);
   const [toastText, setToastText] = useState<string | null>(null);
 
-  // Toast自动隐藏
   useEffect(() => {
     if (toastText !== null) {
       const timer = setTimeout(() => setToastText(null), 1000);
@@ -22,38 +34,47 @@ export default function SwipeDeleteExample() {
     }
   }, [toastText]);
 
-  const onDelete = (id: string) => {
-    setData((prev) => prev.filter((item) => item.id !== id));
+  const handleRequestDelete = (id: string) => {
+    onDelete(id);
+    setDeletingId(null);
   };
 
-  const onEdit = (id: string) => {
-    alert(`点击了编辑按钮，ID: ${id}`);
+  const hdonEdit = (id: string) => {
+    onEdit(id);
   };
 
   const showToast = (msg: string) => {
     setToastText(msg);
   };
 
-  const renderItem = ({ item }: { item: { id: string; text: string } }) => (
+  const renderItem = ({ item }: { item: (typeof items)[0] }) => (
     <SwipeableRow
+      itemHeight={120} // custom height
       id={item.id}
-      onDelete={onDelete}
-      onEdit={onEdit}
+      onRequestDelete={handleRequestDelete}
+      onEdit={hdonEdit}
       openRowId={openRowId}
       setOpenRowId={setOpenRowId}
       showToast={showToast}
-      renderEditButton={() => <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>编辑</Text>}
-      renderDeleteButton={() => <Text style={{ color: "white", fontWeight: "bold", fontSize: 16 }}>删除</Text>}
+      isDeleting={deletingId === item.id}
+      renderEditButton={() => (
+        <Text style={{ color: theme.colors.surface, fontWeight: "bold", fontSize: 16 }}>编辑</Text>
+      )}
+      renderDeleteButton={() => (
+        <Text style={{ color: theme.colors.surface, fontWeight: "bold", fontSize: 16 }}>删除</Text>
+      )}
     >
-      <Text style={{ fontSize: 18, paddingVertical: 20, paddingHorizontal: 20 }}>{item.text}</Text>
+      <ItemCard item={item} />
     </SwipeableRow>
   );
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, paddingTop: 50 }}>
-      <FlatList data={data} keyExtractor={(item) => item.id} renderItem={renderItem} />
-      {toastText && <Toast message={toastText} />}
-    </GestureHandlerRootView>
+    <PaperProvider theme={theme}>
+      <GestureHandlerRootView style={{ flex: 1, paddingTop: 50, backgroundColor: theme.colors.background }}>
+        <FlatList data={items} keyExtractor={(item) => item.id} renderItem={renderItem} />
+        {toastText && <Toast message={toastText} />}
+      </GestureHandlerRootView>
+    </PaperProvider>
   );
 }
 

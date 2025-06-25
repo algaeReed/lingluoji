@@ -11,8 +11,8 @@ import { Card, IconButton, Text } from "react-native-paper";
 
 interface FlipCardProps {
   item: Item;
-  onEdit: (item: Item) => void;
-  onDelete: (item: Item) => void;
+  onEdit: (item: string) => void;
+  onDelete: (item: string) => void;
 }
 
 export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
@@ -49,12 +49,12 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
     }).start(() => setFlipped(!flipped));
   };
 
-  const handleEdit = () => {
-    onEdit(item);
+  const handleEdit = (id: string) => {
+    onEdit(id);
   };
 
-  const handleDelete = () => {
-    onDelete(item);
+  const handleDelete = (id: string) => {
+    onDelete(id);
   };
 
   const today = dayjs();
@@ -101,8 +101,18 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
           </Text>
           <Text style={styles.priceText}>¥{item.price}</Text>
           <View style={styles.actionRow}>
-            <IconButton icon='pencil' onPress={handleEdit} />
-            <IconButton icon='delete' onPress={handleDelete} />
+            <IconButton
+              icon='pencil'
+              onPress={() => {
+                handleEdit(item.id);
+              }}
+            />
+            <IconButton
+              icon='delete'
+              onPress={() => {
+                handleDelete(item.id);
+              }}
+            />
           </View>
         </View>
       </Animated.View>

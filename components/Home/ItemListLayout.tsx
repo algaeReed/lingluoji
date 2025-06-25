@@ -1,5 +1,6 @@
 // components/Home/ItemListLayout.tsx
 import { Item } from "@/store/itemStore";
+
 import { useSettingsStore } from "@/store/settingsStore";
 import React from "react";
 import CardLayout from "./card/CardLayout";
@@ -10,8 +11,8 @@ interface Props {
   items: Item[];
   refreshing: boolean;
   onRefresh: () => void;
-  onEdit: (item: Item) => void;
-  onDelete: (item: Item) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 export default function ItemListLayout(props: Props) {

@@ -18,8 +18,8 @@ function Content(props: {
   items: Item[];
   refreshing: boolean;
   onRefresh: () => void;
-  onEdit: (item: Item) => void;
-  onDelete: (item: Item) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
 }) {
   const { items, refreshing, onRefresh, onEdit, onDelete } = props;
 
@@ -61,23 +61,29 @@ export default function App() {
   const openAddModal = () => setAddModalVisible(true);
   const closeAddModal = () => setAddModalVisible(false);
 
-  const handleItemEdit = (item: Item) => {
-    setEditingItem(item);
-    setEditModalVisible(true);
+  const handleItemEdit = (id: string) => {
+    const itemToEdit = items.find((item) => item.id === id);
+    if (itemToEdit) {
+      setEditingItem(itemToEdit);
+      setEditModalVisible(true);
+    }
   };
 
-  const handleItemDelete = (item: Item) => {
+  const handleItemDelete = (id: string) => {
+    const itemToDelete = items.find((item) => item.id === id);
+    if (!itemToDelete) return;
+
     Alert.alert(
       "确认删除",
-      `确定要删除「${item.name}」吗？`,
+      `确定要删除「${itemToDelete.name}」吗？`,
       [
         { text: "取消", style: "cancel" },
         {
           text: "删除",
           style: "destructive",
           onPress: () => {
-            deleteItem(item.id);
-            if (editingItem?.id === item.id) {
+            deleteItem(id);
+            if (editingItem?.id === id) {
               setEditingItem(null);
               setEditModalVisible(false);
             }
@@ -133,7 +139,7 @@ export default function App() {
             visible={editModalVisible}
             onDismiss={closeEditModal}
             onSave={handleEditSave}
-            onDelete={() => handleItemDelete(editingItem)}
+            onDelete={() => handleItemDelete(editingItem.id)}
             initialData={{
               name: editingItem.name,
               price: editingItem.price,
