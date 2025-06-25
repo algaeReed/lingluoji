@@ -50,10 +50,12 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
   };
 
   const handleEdit = (id: string) => {
+    if (!flipped) return;
     onEdit(id);
   };
 
   const handleDelete = (id: string) => {
+    if (!flipped) return;
     onDelete(id);
   };
 
