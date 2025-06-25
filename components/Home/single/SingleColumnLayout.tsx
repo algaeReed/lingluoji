@@ -21,6 +21,8 @@ interface ItemListProps {
  */
 export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdit, onDelete }: ItemListProps) {
   // export default function SingleColumnLayout() {
+
+  const showToastFlag = false; //调试 显示toast
   const { theme } = useTheme();
   const [deletingId, setDeletingId] = useState(null);
 
@@ -44,7 +46,7 @@ export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdi
   };
 
   const showToast = (msg: string) => {
-    setToastText(msg);
+    showToastFlag && setToastText(msg);
   };
 
   const renderItem = ({ item }: { item: (typeof items)[0] }) => (
