@@ -34,6 +34,8 @@ export type SwipeableRowProps = {
   isDeleting?: boolean; // 外部控制的删除状态
   onRequestDelete?: (id: string) => void; // 新增：请求删除回调
   itemHeight?: number; // 新增：自定义item高度
+  editButtonColor: string;
+  deleteButtonColor: string;
 };
 
 export function SwipeableRow({
@@ -48,6 +50,8 @@ export function SwipeableRow({
   onRequestDelete, // 新增prop
   isDeleting = false, // 默认值
   itemHeight = 70, // 默认高度70
+  editButtonColor,
+  deleteButtonColor,
 }: SwipeableRowProps) {
   // 共享值，动画滑动位置和按钮宽度
   const translateX = useSharedValue(0);
@@ -259,14 +263,14 @@ export function SwipeableRow({
   return (
     <Animated.View style={[styles.rowContainer, rowAnimatedStyle]}>
       <View style={styles.hiddenButtons}>
-        <Animated.View style={[styles.editButton, editBtnStyle]}>
+        <Animated.View style={[styles.editButton, editBtnStyle, { backgroundColor: editButtonColor }]}>
           {showEdit && (
             <View onTouchStart={onPressEdit}>
               {renderEditButton ? renderEditButton() : <Text style={styles.buttonText}>编辑</Text>}
             </View>
           )}
         </Animated.View>
-        <Animated.View style={[styles.deleteButton, deleteBtnStyle]}>
+        <Animated.View style={[styles.deleteButton, deleteBtnStyle, { backgroundColor: deleteButtonColor }]}>
           <View onTouchStart={onPressDelete}>
             {renderDeleteButton ? renderDeleteButton() : <Text style={styles.buttonText}>删除</Text>}
           </View>

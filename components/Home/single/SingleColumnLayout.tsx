@@ -59,11 +59,13 @@ export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdi
       setOpenRowId={setOpenRowId}
       showToast={showToast}
       isDeleting={deletingId === item.id}
+      editButtonColor={theme.colors.primary}
+      deleteButtonColor={theme.colors.error}
       renderEditButton={() => (
-        <Text style={{ color: theme.colors.surface, fontWeight: "bold", fontSize: 16 }}>编辑</Text>
+        <Text style={{ color: theme.colors.onPrimary, fontWeight: "bold", fontSize: 16 }}>编辑</Text>
       )}
       renderDeleteButton={() => (
-        <Text style={{ color: theme.colors.surface, fontWeight: "bold", fontSize: 16 }}>删除</Text>
+        <Text style={{ color: theme.colors.onError, fontWeight: "bold", fontSize: 16 }}>删除</Text>
       )}
     >
       <ItemCard item={item} />
