@@ -1,4 +1,3 @@
-import StatusManager from "@/components/StatusManager/StatusManager";
 import { useUserStore } from "@/store/userStore";
 import { useTheme } from "@/theme/ThemeProvider";
 import { router } from "expo-router";
@@ -54,7 +53,8 @@ const ProfileScreen = () => {
 
           <View style={styles.companyInfo}>
             <Paragraph>{user?.bio || "零落成泥碾作尘 只有香如故"}</Paragraph>
-            <StatusManager />
+            {/* //TODO咱不需要状态· */}
+            {/* <StatusManager /> */}
           </View>
         </Card.Content>
       </Card>
