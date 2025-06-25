@@ -71,18 +71,23 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
         <Animated.View style={[styles.card, styles.cardFront, flipToFrontStyle]}>
           <Card style={styles.innerCard} mode='contained'>
             {item.imageUri && <Image source={{ uri: item.imageUri }} style={styles.image} />}
-            <Card.Content style={styles.cardContent}>
-              <Text variant='titleMedium' numberOfLines={1}>
-                {item.name}
-              </Text>
-              <Text>总价: ¥{item.price}</Text>
-              <Text>日均: ¥{dailyCost}</Text>
-              <Text>
-                购入: {purchaseDate.format("YYYY-MM-DD")}
-                {/* ({daysUsed}天前) */}
-              </Text>
+            {/* <Card.Content style={styles.cardContent}> */}
+            <Card.Content
+              style={[styles.cardContent, item.imageUri ? styles.cardContent : styles.cardContentWithoutImage]}
+            >
+              <View>
+                <Text variant='titleMedium' numberOfLines={1}>
+                  {item.name}
+                </Text>
+                <Text>总价: ¥{item.price}</Text>
+                <Text>日均: ¥{dailyCost}</Text>
+                <Text>
+                  购入: {purchaseDate.format("YYYY-MM-DD")}
+                  {/* ({daysUsed}天前) */}
+                </Text>
 
-              <Text>已过天数: {getUsageTimeDescription(daysUsed, forceType, isShort)?.text}</Text>
+                <Text>已过天数: {getUsageTimeDescription(daysUsed, forceType, isShort)?.text}</Text>
+              </View>
               <BreathingHint />
               {/* <Text style={styles.hint}>点击查看操作</Text> */}
             </Card.Content>
@@ -153,6 +158,10 @@ const styles = StyleSheet.create({
   cardContent: {
     height: CONTENT_HEIGHT,
     justifyContent: "space-between",
+  },
+  cardContentWithoutImage: {
+    height: CONTENT_HEIGHT + IMAGE_HEIGHT,
+    justifyContent: "space-around",
   },
   image: {
     height: IMAGE_HEIGHT,
