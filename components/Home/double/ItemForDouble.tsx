@@ -10,8 +10,8 @@ import { Card, IconButton, Text } from "react-native-paper";
 
 interface Props {
   item: Item;
-  onEdit: (item: Item) => void;
-  onDelete: (item: Item) => void;
+  onEdit: (item: string) => void;
+  onDelete: (item: string) => void;
 }
 
 export default function ItemForDouble({ item, onEdit, onDelete }: Props) {
@@ -22,7 +22,7 @@ export default function ItemForDouble({ item, onEdit, onDelete }: Props) {
   const days = item.dailyPrices?.length || 0;
   const avgPrice = days > 0 ? item.price / days : 0;
   return (
-    <TouchableOpacity activeOpacity={0.8} onPress={() => onEdit(item)} onLongPress={() => onDelete(item)}>
+    <TouchableOpacity activeOpacity={0.8} onPress={() => onEdit(item.id)} onLongPress={() => onDelete(item.id)}>
       <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
         {item.imageUri && <Image source={{ uri: item.imageUri }} style={styles.image} resizeMode='cover' />}
 
@@ -40,8 +40,8 @@ export default function ItemForDouble({ item, onEdit, onDelete }: Props) {
         </Card.Content>
 
         <View style={styles.actions}>
-          <IconButton icon='pencil' size={20} onPress={() => onEdit(item)} />
-          <IconButton icon='delete' size={20} onPress={() => onDelete(item)} />
+          <IconButton icon='pencil' size={20} onPress={() => onEdit(item.id)} />
+          <IconButton icon='delete' size={20} onPress={() => onDelete(item.id)} />
         </View>
       </Card>
     </TouchableOpacity>
