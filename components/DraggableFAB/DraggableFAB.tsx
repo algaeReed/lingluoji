@@ -105,7 +105,7 @@ export default function DraggableFAB({
   return (
     <Animated.View
       style={[styles.fabContainer, { transform: pan.getTranslateTransform() }]}
-      {...(draggable ? panResponder.panHandlers : {})}
+      // {...(draggable ? panResponder.panHandlers : {})}
     >
       <FAB
         icon='plus'

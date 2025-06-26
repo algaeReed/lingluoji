@@ -85,7 +85,7 @@ const EditProfileScreen = () => {
             {/* Avatar Section */}
             <View style={styles.avatarSection}>
               <Avatar.Image
-                size={120}
+                size={80}
                 source={{ uri: avatarUri || "https://via.placeholder.com/150" }}
                 style={styles.avatar}
               />

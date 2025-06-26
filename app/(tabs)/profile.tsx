@@ -34,7 +34,7 @@ const ProfileScreen = () => {
         <Card.Content>
           <View style={styles.userInfo}>
             <Avatar.Image
-              size={120}
+              size={80}
               source={{ uri: user?.avatarUrl || "https://via.placeholder.com/150" }}
               style={styles.avatar}
             />
@@ -145,7 +145,6 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 40,
     marginRight: 16,
-    borderWidth: 3,
     borderColor: "white",
   },
   userText: {

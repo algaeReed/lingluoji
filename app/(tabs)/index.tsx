@@ -58,7 +58,10 @@ export default function App() {
     setRefreshing(false);
   }, [loadItems]);
 
-  const openAddModal = () => setAddModalVisible(true);
+  const openAddModal = () => {
+    console.log("first");
+    setAddModalVisible(true);
+  };
   const closeAddModal = () => setAddModalVisible(false);
 
   const handleItemEdit = (id: string) => {

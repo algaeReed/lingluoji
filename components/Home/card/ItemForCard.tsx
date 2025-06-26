@@ -6,7 +6,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
 import dayjs from "dayjs";
 import React, { useRef, useState } from "react";
-import { Animated, Image, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
+import { Animated, ImageBackground, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import { Card, IconButton, Text } from "react-native-paper";
 
 interface FlipCardProps {
@@ -70,27 +70,43 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
       <TouchableWithoutFeedback onPress={handleFlip}>
         <Animated.View style={[styles.card, styles.cardFront, flipToFrontStyle]}>
           <Card style={styles.innerCard} mode='contained'>
-            {item.imageUri && <Image source={{ uri: item.imageUri }} style={styles.image} />}
-            {/* <Card.Content style={styles.cardContent}> */}
-            <Card.Content
-              style={[styles.cardContent, item.imageUri ? styles.cardContent : styles.cardContentWithoutImage]}
-            >
-              <View>
-                <Text variant='titleMedium' numberOfLines={1}>
-                  {item.name}
-                </Text>
-                <Text>总价: ¥{item.price}</Text>
-                <Text>日均: ¥{dailyCost}</Text>
-                <Text>
-                  购入: {purchaseDate.format("YYYY-MM-DD")}
-                  {/* ({daysUsed}天前) */}
-                </Text>
+            <ImageBackground source={{ uri: item.imageUri }} style={styles.image} resizeMode='cover'>
+              <Card.Content
+                style={[
+                  item.imageUri
+                    ? [
+                        styles.cardContent,
+                        {
+                          backgroundColor: "rgba(255, 255, 255, 0.5)",
+                        },
+                      ]
+                    : styles.cardContentWithoutImage,
+                ]}
+              >
+                <View>
+                  <Text
+                    variant='titleMedium'
+                    numberOfLines={1}
+                    style={{ fontSize: 20, color: theme.colors.primary, textAlign: "center", lineHeight: 30 }}
+                  >
+                    {item.name}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: theme.colors.primary, textAlign: "center", lineHeight: 20 }}>
+                    总价: ¥{item.price} ~ 日均: ¥{dailyCost}
+                  </Text>
 
-                <Text>已过天数: {getUsageTimeDescription(daysUsed, forceType, isShort)?.text}</Text>
-              </View>
-              <BreathingHint />
-              {/* <Text style={styles.hint}>点击查看操作</Text> */}
-            </Card.Content>
+                  <Text style={{ fontSize: 12, color: theme.colors.primary, textAlign: "center", lineHeight: 20 }}>
+                    购入: {purchaseDate.format("YYYY-MM-DD")} ~ 已过天数:
+                    {getUsageTimeDescription(daysUsed, forceType, isShort)?.text}
+                  </Text>
+                </View>
+                <BreathingHint
+                  textStyle={{
+                    color: theme.colors.primary,
+                  }}
+                />
+              </Card.Content>
+            </ImageBackground>
           </Card>
         </Animated.View>
       </TouchableWithoutFeedback>
@@ -152,29 +168,28 @@ const styles = StyleSheet.create({
   },
   innerCard: {
     flex: 1,
-    padding: 12,
+    // padding: 12,
     justifyContent: "space-between",
   },
+  image: {
+    height: CARD_HEIGHT,
+    width: "100%",
+    borderRadius: 10,
+    marginBottom: 10,
+    justifyContent: "flex-end",
+  },
+
   cardContent: {
-    height: CONTENT_HEIGHT,
+    height: CONTENT_HEIGHT - 24,
     justifyContent: "space-between",
+
+    padding: 12,
   },
   cardContentWithoutImage: {
     height: CONTENT_HEIGHT + IMAGE_HEIGHT,
     justifyContent: "space-around",
   },
-  image: {
-    height: IMAGE_HEIGHT,
-    width: "100%",
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  hint: {
-    // marginTop: 8,
-    // color: "#888",
-    // fontSize: 13,
-    // textAlign: "center",
-  },
+
   actionContent: {
     alignItems: "center",
     justifyContent: "center",

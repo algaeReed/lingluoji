@@ -7,7 +7,7 @@ interface BreathingHintProps {
   textStyle?: TextStyle;
 }
 
-export default function BreathingHint({ text = "点击查看操作", style, textStyle }: BreathingHintProps) {
+export default function BreathingHint({ text = "点击翻转", style, textStyle }: BreathingHintProps) {
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function BreathingHint({ text = "点击查看操作", style, text
 
 const styles = StyleSheet.create({
   hint: {
-    marginTop: 8,
+    // marginTop: 8,
     color: "#888",
     fontSize: 13,
     textAlign: "center",
