@@ -105,6 +105,7 @@ export default function DraggableFAB({
   return (
     <Animated.View
       style={[styles.fabContainer, { transform: pan.getTranslateTransform() }]}
+      // TODO 单击时间冲突，暂时注释
       // {...(draggable ? panResponder.panHandlers : {})}
     >
       <FAB
