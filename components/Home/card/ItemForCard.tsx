@@ -7,7 +7,7 @@ import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
 import dayjs from "dayjs";
 import React, { useRef, useState } from "react";
 import { Animated, ImageBackground, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
-import { Card, IconButton, Text } from "react-native-paper";
+import { Avatar, Card, IconButton, Text } from "react-native-paper";
 
 interface FlipCardProps {
   item: Item;
@@ -66,20 +66,14 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
 
   return (
     <View style={styles.container}>
-      {/* Front Side */}
       <TouchableWithoutFeedback onPress={handleFlip}>
         <Animated.View style={[styles.card, styles.cardFront, flipToFrontStyle]}>
           <Card style={styles.innerCard} mode='contained'>
-            <ImageBackground source={{ uri: item.imageUri }} style={styles.image} resizeMode='cover'>
+            <ImageBackground source={{ uri: item.imageUri }} style={styles.frontImage} resizeMode='cover'>
               <Card.Content
                 style={[
                   item.imageUri
-                    ? [
-                        styles.cardContent,
-                        {
-                          backgroundColor: "rgba(255, 255, 255, 0.5)",
-                        },
-                      ]
+                    ? [styles.frontCardContent, { backgroundColor: "rgba(255, 255, 255, 0.5)" }]
                     : styles.cardContentWithoutImage,
                 ]}
               >
@@ -94,7 +88,6 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
                   <Text style={{ fontSize: 12, color: theme.colors.primary, textAlign: "center", lineHeight: 20 }}>
                     总价: ¥{item.price} ~ 日均: ¥{dailyCost}
                   </Text>
-
                   <Text style={{ fontSize: 12, color: theme.colors.primary, textAlign: "center", lineHeight: 20 }}>
                     购入: {purchaseDate.format("YYYY-MM-DD")} ~ 已过天数:
                     {getUsageTimeDescription(daysUsed, forceType, isShort)?.text}
@@ -111,32 +104,49 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
         </Animated.View>
       </TouchableWithoutFeedback>
 
-      {/* Back Side */}
       <Animated.View
         style={[styles.card, styles.cardBack, flipToBackStyle, { backgroundColor: theme.colors.surfaceVariant }]}
-        // 👇 这行确保能响应事件而不会穿透
         pointerEvents='box-none'
       >
         <View style={styles.backMask} pointerEvents='box-none' />
-        <View style={styles.actionContent}>
-          <Text variant='titleMedium' style={styles.nameCenter}>
-            {item.name}
-          </Text>
-          <Text style={styles.priceText}>¥{item.price}</Text>
-          <View style={styles.actionRow}>
-            <IconButton
-              icon='pencil'
-              onPress={() => {
-                handleEdit(item.id);
-              }}
-            />
-            <IconButton
-              icon='delete'
-              onPress={() => {
-                handleDelete(item.id);
-              }}
-            />
-          </View>
+        <View style={styles.actionContent} pointerEvents='box-none'>
+          <ImageBackground
+            source={{ uri: item.imageUri }}
+            style={styles.backImage}
+            resizeMode='cover'
+            pointerEvents='box-none'
+            {...({ pointerEvents: "box-none" } as any)} // 强制类型断言
+          >
+            <Card.Content
+              pointerEvents='box-none'
+              style={[
+                item.imageUri
+                  ? [styles.backCardContent, { backgroundColor: "rgba(255, 255, 255, 0.5)" }]
+                  : styles.cardContentWithoutImage,
+              ]}
+            >
+              <View style={styles.backContentContainer}>
+                <Avatar.Image
+                  size={68}
+                  source={{ uri: item.imageUri || "https://via.placeholder.com/150" }}
+                  style={styles.avatar}
+                />
+                <Text
+                  variant='titleMedium'
+                  style={{ fontSize: 20, color: theme.colors.primary, textAlign: "center", lineHeight: 30 }}
+                >
+                  {item.name}
+                </Text>
+                <Text style={{ fontSize: 12, color: theme.colors.primary, textAlign: "center", lineHeight: 20 }}>
+                  总价: ¥{item.price} ~ 日均: ¥{dailyCost}
+                </Text>
+                <View style={styles.actionRow}>
+                  <IconButton icon='pencil' onPress={() => handleEdit(item.id)} />
+                  <IconButton icon='delete' onPress={() => handleDelete(item.id)} />
+                </View>
+              </View>
+            </Card.Content>
+          </ImageBackground>
         </View>
       </Animated.View>
     </View>
@@ -157,61 +167,71 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
   },
+
+  // Front styles
   cardFront: {
     zIndex: 2,
   },
-  cardBack: {
-    zIndex: 3,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 16,
-  },
   innerCard: {
     flex: 1,
-    // padding: 12,
-    justifyContent: "space-between",
   },
-  image: {
+  frontImage: {
     height: CARD_HEIGHT,
     width: "100%",
     borderRadius: 10,
     marginBottom: 10,
     justifyContent: "flex-end",
   },
-
-  cardContent: {
+  frontCardContent: {
     height: CONTENT_HEIGHT - 24,
     justifyContent: "space-between",
-
     padding: 12,
   },
-  cardContentWithoutImage: {
-    height: CONTENT_HEIGHT + IMAGE_HEIGHT,
-    justifyContent: "space-around",
-  },
 
-  actionContent: {
+  // Back styles
+  cardBack: {
+    zIndex: 3,
     alignItems: "center",
     justifyContent: "center",
   },
-  nameCenter: {
-    fontSize: 16,
-    textAlign: "center",
-    fontWeight: "500",
-    marginBottom: 4,
+  backMask: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "transparent",
+    zIndex: 1,
   },
-  priceText: {
-    fontSize: 15,
-    color: "#444",
+  actionContent: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "transparent",
+  },
+  backImage: {
+    height: CARD_HEIGHT,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  backCardContent: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    padding: 12,
+  },
+  backContentContainer: {
+    height: CONTENT_HEIGHT,
+    justifyContent: "center",
+  },
+  avatar: {
+    alignSelf: "center",
   },
   actionRow: {
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 12,
   },
-  backMask: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "transparent",
-    zIndex: 1,
+
+  // Shared styles
+  cardContentWithoutImage: {
+    height: CONTENT_HEIGHT + IMAGE_HEIGHT,
+    justifyContent: "space-around",
   },
 });
