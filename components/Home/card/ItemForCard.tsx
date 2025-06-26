@@ -129,7 +129,13 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
                 <Avatar.Image
                   size={96}
                   source={{ uri: item.imageUri || "https://via.placeholder.com/150" }}
-                  style={styles.avatar}
+                  style={[
+                    item.imageUri
+                      ? styles.avatar
+                      : {
+                          display: "none",
+                        },
+                  ]}
                 />
                 <Text
                   variant='titleMedium'
