@@ -121,13 +121,13 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
               pointerEvents='box-none'
               style={[
                 item.imageUri
-                  ? [styles.backCardContent, { backgroundColor: "rgba(255, 255, 255, 0.5)" }]
+                  ? [styles.backCardContent, { backgroundColor: "rgba(255, 255, 255, 0.6)" }]
                   : styles.cardContentWithoutImage,
               ]}
             >
               <View style={styles.backContentContainer}>
                 <Avatar.Image
-                  size={68}
+                  size={96}
                   source={{ uri: item.imageUri || "https://via.placeholder.com/150" }}
                   style={styles.avatar}
                 />
