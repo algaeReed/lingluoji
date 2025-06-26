@@ -47,7 +47,7 @@ export default function TabLayout() {
         name='explore'
         options={{
           title: "Explore",
-          // href: null, // ✅ 不出现在底部导航
+          href: null, // ✅ 不出现在底部导航/
           tabBarIcon: ({ color }) => <IconSymbol name='paperplane.fill' size={28} color={color} />,
         }}
       />
