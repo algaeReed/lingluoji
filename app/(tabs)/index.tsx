@@ -4,7 +4,6 @@ import { Alert, Dimensions, StyleSheet, View } from "react-native";
 import { MD3Theme, Provider as PaperProvider, useTheme } from "react-native-paper";
 
 import DraggableFAB from "@/components/DraggableFAB/DraggableFAB";
-import CustomHeader from "@/components/HeaderWithSearch";
 import AddItemModal from "@/components/HModal/AddItemModal";
 import EditItemModal from "@/components/HModal/EditItemModal";
 import ItemListLayout from "@/components/Home/ItemListLayout";
@@ -128,7 +127,7 @@ export default function App() {
     <PaperProvider theme={theme}>
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         {/* <HeaderWithSearch onSearch={(query) => console.log("搜索内容:", query)} /> */}
-        <CustomHeader title='零落集' onSearch={(query) => console.log("Search:", query)} />
+        {/* <CustomHeader title='零落集' onSearch={(query) => console.log("Search:", query)} /> */}
 
         <View style={styles.header}>
           <Content
