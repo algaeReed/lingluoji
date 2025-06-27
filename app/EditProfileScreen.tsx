@@ -1,4 +1,5 @@
 import AlertDialog from "@/components/AlertDialog/AlertDialog";
+import useAlert from "@/hooks/useAlert";
 import { useUserStore } from "@/store/userStore";
 import { useTheme } from "@/theme/ThemeProvider";
 import * as ImagePicker from "expo-image-picker";
@@ -15,19 +16,16 @@ const EditProfileScreen = () => {
   const [avatarUri, setAvatarUri] = useState(user?.avatarUrl || "");
   const [isLoading, setIsLoading] = useState(false);
 
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-
-  const showAlert = (message: string) => {
-    setAlertMessage(message);
-    setAlertVisible(true);
-  };
+  const { alertVisible, alertMessage, alertTitle, alertOptions, showAlert, hideAlert } = useAlert();
 
   const handleImagePick = async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
-        showAlert("需要相册权限来上传图片");
+        showAlert("需要相册权限来上传图片", {
+          title: "权限不足",
+          type: "warning",
+        });
         return;
       }
 
@@ -40,16 +38,20 @@ const EditProfileScreen = () => {
 
       if (!result.canceled && result.assets) {
         setAvatarUri(result.assets[0].uri);
+        showAlert("头像已更新", { type: "success", duration: 1500 });
       }
     } catch (error) {
       console.error("Image picker error:", error);
-      showAlert("选择图片时出错");
+      showAlert("选择图片时出错", { type: "error" });
     }
   };
 
   const handleSave = async () => {
     if (!name.trim()) {
-      showAlert("姓名不能为空");
+      showAlert("姓名不能为空", {
+        title: "输入错误",
+        type: "warning",
+      });
       return;
     }
 
@@ -60,13 +62,22 @@ const EditProfileScreen = () => {
         bio: bio.trim(),
         avatarUrl: avatarUri,
       });
-      router.back();
+      showAlert("资料保存成功", {
+        type: "success",
+        duration: 1000,
+        onConfirm: () => router.back(),
+      });
     } catch (error) {
       console.error("保存失败:", error);
-      showAlert("保存更改时出错");
+      showAlert("保存更改时出错", { type: "error" });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const clearField = (field: "name" | "bio") => {
+    if (field === "name") setName("");
+    if (field === "bio") setBio("");
   };
 
   return (
@@ -94,6 +105,7 @@ const EditProfileScreen = () => {
                 onPress={handleImagePick}
                 style={styles.avatarButton}
                 textColor={theme.colors.primary}
+                disabled={isLoading}
               >
                 更换头像
               </Button>
@@ -112,12 +124,9 @@ const EditProfileScreen = () => {
               maxLength={20}
               disabled={isLoading}
               right={
-                name.length > 0 ? (
-                  <TextInput.Icon
-                    icon='close'
-                    onPress={() => setName("")} // 点击清空
-                  />
-                ) : null
+                name.length > 0 && (
+                  <TextInput.Icon icon='close' onPress={() => clearField("name")} disabled={isLoading} />
+                )
               }
             />
 
@@ -136,12 +145,7 @@ const EditProfileScreen = () => {
               maxLength={100}
               disabled={isLoading}
               right={
-                bio.length > 0 ? (
-                  <TextInput.Icon
-                    icon='close'
-                    onPress={() => setBio("")} // 点击清空
-                  />
-                ) : null
+                bio.length > 0 && <TextInput.Icon icon='close' onPress={() => clearField("bio")} disabled={isLoading} />
               }
             />
 
@@ -160,7 +164,18 @@ const EditProfileScreen = () => {
         </Card>
       </ScrollView>
 
-      <AlertDialog visible={alertVisible} message={alertMessage} onDismiss={() => setAlertVisible(false)} />
+      <AlertDialog
+        visible={alertVisible}
+        title={alertTitle}
+        message={alertMessage}
+        type={alertOptions.type}
+        confirmText={alertOptions.confirmText}
+        onDismiss={hideAlert}
+        onConfirm={() => {
+          alertOptions.onConfirm?.();
+          hideAlert();
+        }}
+      />
     </View>
   );
 };
@@ -176,6 +191,7 @@ const styles = StyleSheet.create({
   card: {
     margin: 16,
     borderRadius: 12,
+    elevation: 2,
   },
   cardContent: {
     paddingVertical: 20,
@@ -186,9 +202,11 @@ const styles = StyleSheet.create({
   },
   avatar: {
     marginBottom: 12,
+    backgroundColor: "transparent",
   },
   avatarButton: {
     borderRadius: 8,
+    borderWidth: 1,
   },
   input: {
     marginBottom: 16,
@@ -201,6 +219,7 @@ const styles = StyleSheet.create({
   saveButton: {
     marginTop: 24,
     borderRadius: 8,
+    paddingVertical: 6,
   },
 });
 

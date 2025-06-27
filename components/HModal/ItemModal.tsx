@@ -141,14 +141,13 @@ export default function ItemModal({ visible, onDismiss, onSave, onDelete, initia
             </View>
           )}
 
+          <Button mode='contained' onPress={handleSave} style={{ marginBottom: 8 }}>
+            保存
+          </Button>
           {/* 取消 */}
           <Button mode='outlined' onPress={onDismiss} style={{ marginBottom: 8 }}>
             取消
           </Button>
-          <Button mode='contained' onPress={handleSave} style={{ marginBottom: 8 }}>
-            保存
-          </Button>
-
           {isEditing && onDelete && (
             <Button mode='outlined' onPress={onDelete} textColor={theme.colors.error}>
               删除
