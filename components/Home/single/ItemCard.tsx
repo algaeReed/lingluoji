@@ -64,22 +64,22 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 2,
+    // marginBottom: 2,
   },
   itemDate: {
     fontSize: 13,
   },
   priceText: {
     fontWeight: "600",
-    marginTop: 4,
+    // marginTop: 4,
   },
   avgPriceText: {
     fontSize: 13,
-    marginTop: 4,
+    // marginTop: 4,
   },
   dayCountText: {
     fontSize: 13,
-    marginTop: 2,
+    // marginTop: 2,
   },
   rowFront: {
     backgroundColor: "transparent",
