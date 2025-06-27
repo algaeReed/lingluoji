@@ -5,8 +5,28 @@ import * as DocumentPicker from "expo-document-picker";
 import { Alert } from "react-native";
 import * as XLSX from "xlsx";
 
+import { convertImageUriToBase64 } from "@/utils/convertImageUriToBase64";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+
+/**
+ * 
+ * @param items 删除 dailyPrices
+使用对象解构 { dailyPrices, ...rest } 直接排除该字段。
+转换 imageUri 为 Base64
+使用 expo-file-system 的 readAsStringAsync 读取文件并编码为 Base64。
+如果是 PNG 图片，记得修改 MIME 类型为 image/png。
+如果转换失败，保留原始 imageUri 作为 fallback。
+ * @returns 
+ */
+const processItems = async (items: Item[] | { [x: string]: any; dailyPrices: any; imageUri: any }[]) => {
+  return await Promise.all(
+    items.map(async ({ dailyPrices, imageUri, ...rest }) => ({
+      ...rest,
+      imageUri: imageUri ? await convertImageUriToBase64(imageUri) : null,
+    }))
+  );
+};
 
 export function useExportItems() {
   const items = useItemsStore((state) => state.items);
@@ -15,7 +35,9 @@ export function useExportItems() {
   // 导出为 JSON
   const exportToJSON = async () => {
     try {
-      const json = JSON.stringify(items, null, 2);
+      const exportJsonData = await processItems(items);
+
+      const json = JSON.stringify(exportJsonData, null, 2);
       const fileUri = FileSystem.cacheDirectory + "items.json";
       await FileSystem.writeAsStringAsync(fileUri, json, {
         encoding: FileSystem.EncodingType.UTF8,
