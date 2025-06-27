@@ -50,11 +50,13 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
     }).start(() => setFlipped(!flipped));
   };
 
-  const handleEdit = () => {
+  const handleEdit = (e: any) => {
+    e.stopPropagation();
     onEdit(item.id);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (e: any) => {
+    e.stopPropagation();
     onDelete(item.id);
   };
 
@@ -116,41 +118,43 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
           },
         ]}
       >
-        <View style={styles.backContent}>
-          {/* 背面翻转区域 - 覆盖整个卡片但避开操作按钮 */}
-          <Pressable onPress={handleFlip} style={styles.flipBackPressable} />
-
-          <ImageBackground source={{ uri: item.imageUri }} style={styles.backImage} resizeMode='cover'>
-            <Card.Content
-              style={[
-                item.imageUri
-                  ? [styles.backCardContent, { backgroundColor: "rgba(255, 255, 255, 0.6)" }]
-                  : styles.cardContentWithoutImage,
-              ]}
-            >
-              <View style={styles.backContentContainer}>
-                <Avatar.Image
-                  size={96}
-                  source={{ uri: item.imageUri || "https://via.placeholder.com/150" }}
-                  style={item.imageUri ? styles.avatar : { display: "none" }}
-                />
-                <Text
-                  variant='titleMedium'
-                  style={{ fontSize: 20, color: theme.colors.primary, textAlign: "center", lineHeight: 30 }}
-                >
-                  {item.name}
-                </Text>
-                <Text style={{ fontSize: 12, color: theme.colors.primary, textAlign: "center", lineHeight: 20 }}>
-                  总价: ¥{item.price} ~ 日均: ¥{dailyCost}
-                </Text>
-                <View style={styles.actionRow}>
-                  <IconButton icon='pencil' onPress={handleEdit} style={styles.actionButton} />
-                  <IconButton icon='delete' onPress={handleDelete} style={styles.actionButton} />
+        <Pressable onPress={handleFlip} style={{ flex: 1, width: "100%", height: "100%" }}>
+          <View style={styles.backContent}>
+            <ImageBackground source={{ uri: item.imageUri }} style={styles.backImage} resizeMode='cover'>
+              <Card.Content
+                style={[
+                  item.imageUri
+                    ? [styles.backCardContent, { backgroundColor: "rgba(255, 255, 255, 0.6)" }]
+                    : styles.cardContentWithoutImage,
+                ]}
+                pointerEvents='none'
+              >
+                <View style={styles.backContentContainer}>
+                  <Avatar.Image
+                    size={96}
+                    source={{ uri: item.imageUri || "https://via.placeholder.com/150" }}
+                    style={item.imageUri ? styles.avatar : { display: "none" }}
+                  />
+                  <Text
+                    variant='titleMedium'
+                    style={{ fontSize: 20, color: theme.colors.primary, textAlign: "center", lineHeight: 30 }}
+                  >
+                    {item.name}
+                  </Text>
+                  <Text style={{ fontSize: 12, color: theme.colors.primary, textAlign: "center", lineHeight: 20 }}>
+                    总价: ¥{item.price} ~ 日均: ¥{dailyCost}
+                  </Text>
                 </View>
+              </Card.Content>
+            </ImageBackground>
+            <View style={styles.actionContainer} pointerEvents='box-none'>
+              <View style={styles.actionRow}>
+                <IconButton icon='pencil' onPress={handleEdit} style={styles.actionButton} />
+                <IconButton icon='delete' onPress={handleDelete} style={styles.actionButton} />
               </View>
-            </Card.Content>
-          </ImageBackground>
-        </View>
+            </View>
+          </View>
+        </Pressable>
       </Animated.View>
     </View>
   );
@@ -220,24 +224,23 @@ const styles = StyleSheet.create({
   avatar: {
     alignSelf: "center",
   },
+  actionContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    zIndex: 3,
+  },
   actionRow: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 12,
-    zIndex: 3, // 确保按钮在最上层
+    backgroundColor: "rgba(255,255,255,0.7)",
+    borderRadius: 25,
+    paddingHorizontal: 10,
   },
   actionButton: {
     marginHorizontal: 10,
-    backgroundColor: "rgba(255,255,255,0.7)",
-    zIndex: 3, // 确保按钮在最上层
-  },
-  flipBackPressable: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 80, // 留出底部空间给操作按钮
-    zIndex: 2,
   },
 
   // Shared styles
