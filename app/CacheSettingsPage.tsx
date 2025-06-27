@@ -1,3 +1,5 @@
+import AlertDialog from "@/components/AlertDialog/AlertDialog";
+import useAlert from "@/hooks/useAlert";
 import { resetAllStores, resetStore } from "@/store";
 import { STORAGE_KEYS } from "@/store/storageKeys";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -16,6 +18,8 @@ type CacheItem = {
 };
 
 const CacheSettingsPage = () => {
+  const { alertVisible, alertMessage, alertTitle, alertOptions, showAlert, hideAlert } = useAlert();
+
   const { theme } = useTheme();
   const [cacheSize, setCacheSize] = useState<string>("计算中...");
   const [cacheItems, setCacheItems] = useState<CacheItem[]>([]);
@@ -67,6 +71,7 @@ const CacheSettingsPage = () => {
     } catch (error) {
       console.error("获取缓存数据失败:", error);
       Alert.alert("错误", "获取缓存数据失败");
+      showAlert("获取缓存数据失败", { title: "错误" });
     } finally {
       setIsLoading(false);
     }
@@ -95,11 +100,12 @@ const CacheSettingsPage = () => {
         }
       }
 
-      Alert.alert("成功", `已删除: ${item.name}`);
+      showAlert(`已删除: ${item.name}`, { title: "成功", showCancel: false });
+
       fetchCacheData();
     } catch (error) {
       console.error(`删除 ${item.name} 失败:`, error);
-      Alert.alert("错误", `删除 ${item.name} 失败`);
+      showAlert(`删除 ${item.name} 失败`, { title: "错误" });
     }
   };
 
@@ -126,11 +132,11 @@ const CacheSettingsPage = () => {
         );
       }
 
-      Alert.alert("成功", "缓存已清除");
+      showAlert(`缓存已清除`, { title: "成功", showCancel: false });
       fetchCacheData();
     } catch (error) {
       console.error("清除缓存失败:", error);
-      Alert.alert("错误", "清除缓存失败");
+      showAlert(`清除缓存失败: ${error}`, { title: "错误" });
     } finally {
       setIsClearing(false);
     }
@@ -198,6 +204,20 @@ const CacheSettingsPage = () => {
             </>
           )}
         </View>
+
+        <AlertDialog
+          visible={alertVisible}
+          title={alertTitle}
+          message={alertMessage}
+          type={alertOptions.type}
+          confirmText={alertOptions.confirmText}
+          onDismiss={hideAlert}
+          onConfirm={() => {
+            alertOptions.onConfirm?.();
+            hideAlert();
+          }}
+          showCancel={alertOptions.showCancel}
+        />
       </ScrollView>
     </>
   );
