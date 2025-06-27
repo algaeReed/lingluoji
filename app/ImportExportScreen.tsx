@@ -1,8 +1,9 @@
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useRef } from "react";
-import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Animated, ScrollView, StyleSheet, View } from "react-native";
 import { Appbar, Button } from "react-native-paper";
 
+import SectionTitle from "@/components/SectionTitle";
 import { useExportItems } from "@/hooks/useExportItems";
 import { useTheme } from "@/theme/ThemeProvider";
 
@@ -53,10 +54,7 @@ export default function ImportExportScreen() {
       <View style={{ padding: 16 }}>
         <View style={styles.innerContainer}>
           {/* 导入标题 */}
-          <View style={styles.sectionHeader}>
-            <View style={[styles.sectionBar, { backgroundColor: theme.colors.primary }]} />
-            <Text style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>导入</Text>
-          </View>
+          <SectionTitle title='导入' />
           <View style={styles.buttonGroup}>
             <Animated.View style={[styles.flexButton, importAnimStyle]}>
               <Button mode='outlined' onPress={importFromJSON} contentStyle={styles.buttonContent}>
@@ -70,10 +68,7 @@ export default function ImportExportScreen() {
             </Animated.View>
           </View>
           {/* 导出标题 */}
-          <View style={[styles.sectionHeader, { marginTop: 32 }]}>
-            <View style={[styles.sectionBar, { backgroundColor: theme.colors.primary }]} />
-            <Text style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>导出</Text>
-          </View>
+          <SectionTitle title='导出' />
           <View style={styles.buttonGroup}>
             <Animated.View style={[styles.flexButton, exportAnimStyle]}>
               <Button mode='outlined' onPress={exportToJSON} contentStyle={styles.buttonContent}>
@@ -124,10 +119,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 2,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-  },
+
   buttonGroup: {
     flexDirection: "row",
     justifyContent: "space-between",

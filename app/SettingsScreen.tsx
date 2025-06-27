@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Appbar, List, Switch } from "react-native-paper";
 
+import SectionTitle from "@/components/SectionTitle";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useTheme } from "@/theme/ThemeProvider";
 
@@ -42,7 +43,8 @@ const SettingsScreen = ({}) => {
         >
           {/* 偏好设置 */}
           <List.Section>
-            <List.Subheader>偏好设置</List.Subheader>
+            {/* <List.Subheader>偏好设置</List.Subheader> */}
+            <SectionTitle title='偏好设置' />
             <List.Item
               title='时间显示格式'
               description='设备已经使用时间显示格式'
@@ -75,7 +77,8 @@ const SettingsScreen = ({}) => {
 
           {/* 缓存管理 */}
           <List.Section>
-            <List.Subheader>缓存管理</List.Subheader>
+            <SectionTitle title='缓存管理' />
+            {/* <List.Subheader>缓存管理</List.Subheader> */}
             <List.Item
               title='缓存设置'
               description='管理应用缓存数据'
@@ -87,7 +90,8 @@ const SettingsScreen = ({}) => {
 
           {/* 关于 */}
           <List.Section>
-            <List.Subheader>关于</List.Subheader>
+            {/* <List.Subheader>关于</List.Subheader> */}
+            <SectionTitle title='关于' />
             <List.Item
               title='隐私政策'
               description='了解我们如何处理您的数据'

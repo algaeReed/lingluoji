@@ -1,4 +1,5 @@
 import LayoutSwitcher from "@/components/LayoutSwitcher/LayoutSwitcher";
+import SectionTitle from "@/components/SectionTitle";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useTheme } from "@/theme/ThemeProvider";
 import { router, Stack } from "expo-router";
@@ -28,9 +29,11 @@ export default function ThemeScreen() {
 
       <View style={{ padding: 16 }}>
         <View style={styles.section}>
-          <Text variant='titleMedium' style={styles.sectionTitle}>
+          {/* <Text variant='titleMedium' style={styles.sectionTitle}>
             选择主题
-          </Text>
+          </Text> */}
+          <SectionTitle title='主题' />
+
           <RadioButton.Group onValueChange={(value) => setThemeMode(value as typeof themeMode)} value={themeMode}>
             {themeOptions.map(({ label, value }) => (
               <TouchableRipple
@@ -47,9 +50,8 @@ export default function ThemeScreen() {
           </RadioButton.Group>
         </View>
 
-        <Text variant='titleMedium' style={styles.sectionTitle}>
-          布局模式
-        </Text>
+        <SectionTitle title='布局模式' />
+
         <LayoutSwitcher />
       </View>
     </ScrollView>
@@ -64,10 +66,6 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: 16,
-  },
-  sectionTitle: {
-    marginBottom: 8,
-    fontWeight: "bold",
   },
 
   radioRow: {
