@@ -106,8 +106,25 @@ const CacheSettingsPage = () => {
   // 清除所有缓存
   const clearAllCache = async () => {
     setIsClearing(true);
+
     try {
+      // 1. 清除所有 Zustand store 和 AsyncStorage
       await resetAllStores(); // 包括 AsyncStorage 和所有相关 Zustand store 的 reset
+
+      // 2. 删除文件缓存
+      const cacheDir = FileSystem.cacheDirectory;
+      if (cacheDir) {
+        const files = await FileSystem.readDirectoryAsync(cacheDir);
+        await Promise.all(
+          files.map(async (file) => {
+            try {
+              await FileSystem.deleteAsync(`${cacheDir}${file}`, { idempotent: true });
+            } catch (error) {
+              console.error(`删除文件 ${file} 失败:`, error);
+            }
+          })
+        );
+      }
 
       Alert.alert("成功", "缓存已清除");
       fetchCacheData();
@@ -144,19 +161,22 @@ const CacheSettingsPage = () => {
             <List.Section>
               <List.Subheader>缓存数据明细</List.Subheader>
               {cacheItems.length > 0 ? (
-                cacheItems.map((item, index) => (
-                  <List.Item
-                    key={`${item.type}-${index}`}
-                    title={item.name}
-                    description={`${item.size} (${item.type === "file" ? "文件" : "存储"})`}
-                    left={() => <List.Icon icon={item.type === "file" ? "file" : "database"} />}
-                    right={() => (
-                      <Button mode='text' onPress={() => clearCacheItem(item)} textColor='#ff4444'>
-                        删除
-                      </Button>
-                    )}
-                  />
-                ))
+                cacheItems
+                  // todo 暂时隐藏这个默认值，这是恢复，不是删除
+                  .filter((item) => item.name !== "@user_storage" && item.name !== "@settings_storage")
+                  .map((item, index) => (
+                    <List.Item
+                      key={`${item.type}-${index}`}
+                      title={item.name}
+                      description={`${item.size} (${item.type === "file" ? "文件" : "存储"})`}
+                      left={() => <List.Icon icon={item.type === "file" ? "file" : "database"} />}
+                      right={() => (
+                        <Button mode='text' onPress={() => clearCacheItem(item)} textColor='#ff4444'>
+                          <Text>删除</Text>
+                        </Button>
+                      )}
+                    />
+                  ))
               ) : (
                 <Text style={styles.emptyText}>暂无缓存数据</Text>
               )}
