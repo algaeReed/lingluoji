@@ -10,7 +10,7 @@ npx expo start --ios --tunnel
 
 ### 本地打包 android apk 格式
 
-eas build --platform android --local
+eas build --platform android --profile preview --local
 
 ### 远程更新
 

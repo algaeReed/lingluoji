@@ -6,7 +6,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
 import dayjs from "dayjs";
 import React, { useRef, useState } from "react";
-import { Animated, ImageBackground, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
+import { Animated, ImageBackground, Pressable, StyleSheet, Vibration, View } from "react-native";
 import { Avatar, Card, IconButton, Text } from "react-native-paper";
 
 interface FlipCardProps {
@@ -42,6 +42,7 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
   };
 
   const handleFlip = () => {
+    Vibration.vibrate(10);
     Animated.timing(flipAnim, {
       toValue: flipped ? 0 : 180,
       duration: 400,
@@ -49,14 +50,12 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
     }).start(() => setFlipped(!flipped));
   };
 
-  const handleEdit = (id: string) => {
-    if (!flipped) return;
-    onEdit(id);
+  const handleEdit = () => {
+    onEdit(item.id);
   };
 
-  const handleDelete = (id: string) => {
-    if (!flipped) return;
-    onDelete(id);
+  const handleDelete = () => {
+    onDelete(item.id);
   };
 
   const today = dayjs();
@@ -66,8 +65,9 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
 
   return (
     <View style={styles.container}>
-      <TouchableWithoutFeedback onPress={handleFlip}>
-        <Animated.View style={[styles.card, styles.cardFront, flipToFrontStyle]}>
+      {/* Front Card */}
+      <Animated.View style={[styles.card, styles.cardFront, flipToFrontStyle, { zIndex: flipped ? 1 : 2 }]}>
+        <Pressable onPress={handleFlip} style={{ flex: 1 }}>
           <Card style={styles.innerCard} mode='contained'>
             <ImageBackground source={{ uri: item.imageUri }} style={styles.frontImage} resizeMode='cover'>
               <Card.Content
@@ -101,24 +101,27 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
               </Card.Content>
             </ImageBackground>
           </Card>
-        </Animated.View>
-      </TouchableWithoutFeedback>
+        </Pressable>
+      </Animated.View>
 
+      {/* Back Card */}
       <Animated.View
-        style={[styles.card, styles.cardBack, flipToBackStyle, { backgroundColor: theme.colors.surfaceVariant }]}
-        pointerEvents='box-none'
+        style={[
+          styles.card,
+          styles.cardBack,
+          flipToBackStyle,
+          {
+            backgroundColor: theme.colors.surfaceVariant,
+            zIndex: flipped ? 2 : 1,
+          },
+        ]}
       >
-        <View style={styles.backMask} pointerEvents='box-none' />
-        <View style={styles.actionContent} pointerEvents='box-none'>
-          <ImageBackground
-            source={{ uri: item.imageUri }}
-            style={styles.backImage}
-            resizeMode='cover'
-            pointerEvents='box-none'
-            {...({ pointerEvents: "box-none" } as any)} // 强制类型断言
-          >
+        <View style={styles.backContent}>
+          {/* 背面翻转区域 - 覆盖整个卡片但避开操作按钮 */}
+          <Pressable onPress={handleFlip} style={styles.flipBackPressable} />
+
+          <ImageBackground source={{ uri: item.imageUri }} style={styles.backImage} resizeMode='cover'>
             <Card.Content
-              pointerEvents='box-none'
               style={[
                 item.imageUri
                   ? [styles.backCardContent, { backgroundColor: "rgba(255, 255, 255, 0.6)" }]
@@ -129,13 +132,7 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
                 <Avatar.Image
                   size={96}
                   source={{ uri: item.imageUri || "https://via.placeholder.com/150" }}
-                  style={[
-                    item.imageUri
-                      ? styles.avatar
-                      : {
-                          display: "none",
-                        },
-                  ]}
+                  style={item.imageUri ? styles.avatar : { display: "none" }}
                 />
                 <Text
                   variant='titleMedium'
@@ -147,8 +144,8 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
                   总价: ¥{item.price} ~ 日均: ¥{dailyCost}
                 </Text>
                 <View style={styles.actionRow}>
-                  <IconButton icon='pencil' onPress={() => handleEdit(item.id)} />
-                  <IconButton icon='delete' onPress={() => handleDelete(item.id)} />
+                  <IconButton icon='pencil' onPress={handleEdit} style={styles.actionButton} />
+                  <IconButton icon='delete' onPress={handleDelete} style={styles.actionButton} />
                 </View>
               </View>
             </Card.Content>
@@ -196,19 +193,13 @@ const styles = StyleSheet.create({
 
   // Back styles
   cardBack: {
-    zIndex: 3,
     alignItems: "center",
     justifyContent: "center",
   },
-  backMask: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "transparent",
-    zIndex: 1,
-  },
-  actionContent: {
+  backContent: {
     width: "100%",
     height: "100%",
-    backgroundColor: "transparent",
+    position: "relative",
   },
   backImage: {
     height: CARD_HEIGHT,
@@ -233,6 +224,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 12,
+    zIndex: 3, // 确保按钮在最上层
+  },
+  actionButton: {
+    marginHorizontal: 10,
+    backgroundColor: "rgba(255,255,255,0.7)",
+    zIndex: 3, // 确保按钮在最上层
+  },
+  flipBackPressable: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 80, // 留出底部空间给操作按钮
+    zIndex: 2,
   },
 
   // Shared styles
