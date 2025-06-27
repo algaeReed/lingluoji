@@ -123,13 +123,25 @@ export default function App() {
     setEditModalVisible(false);
   };
 
+  const showHeader = false;
   return (
     <PaperProvider theme={theme}>
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
         {/* <HeaderWithSearch onSearch={(query) => console.log("搜索内容:", query)} /> */}
         {/* <CustomHeader title='零落集' onSearch={(query) => console.log("Search:", query)} /> */}
 
-        <View style={styles.header}>
+        <View
+          style={[
+            styles.header,
+            showHeader
+              ? {
+                  marginTop: 120,
+                }
+              : {
+                  marginTop: 60,
+                },
+          ]}
+        >
           <Content
             items={items}
             refreshing={refreshing}
@@ -165,7 +177,6 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
     // 添加顶部的间距
-    marginTop: 120,
     height: Dimensions.get("window").height - 100,
   },
 });
