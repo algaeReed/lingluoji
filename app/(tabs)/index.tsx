@@ -1,13 +1,15 @@
 import dayjs from "dayjs";
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Dimensions, StyleSheet, View } from "react-native";
+import { Dimensions, StyleSheet, View } from "react-native";
 import { MD3Theme, Provider as PaperProvider, useTheme } from "react-native-paper";
 
+import AlertDialog from "@/components/AlertDialog/AlertDialog";
 import DraggableFAB from "@/components/DraggableFAB/DraggableFAB";
 import AddItemModal from "@/components/HModal/AddItemModal";
 import EditItemModal from "@/components/HModal/EditItemModal";
 import ItemListLayout from "@/components/Home/ItemListLayout";
 import SummaryCard from "@/components/SummaryCard/SummaryCard";
+import useAlert from "@/hooks/useAlert";
 import useAppUpdate from "@/hooks/useAppUpdate";
 import { Item, useItemsStore } from "@/store/itemStore";
 import { useSettingsStore } from "@/store/settingsStore";
@@ -37,6 +39,7 @@ function Content(props: {
 
 export default function App() {
   useAppUpdate(false);
+  const { alertVisible, alertMessage, alertTitle, alertOptions, showAlert, hideAlert } = useAlert();
 
   const theme: MD3Theme = useTheme();
   const [refreshing, setRefreshing] = useState(false);
@@ -75,26 +78,19 @@ export default function App() {
   const handleItemDelete = (id: string) => {
     const itemToDelete = items.find((item) => item.id === id);
     if (!itemToDelete) return;
+    showAlert(`确定要删除「${itemToDelete.name}」吗？`, {
+      title: "确认删除",
+      cancelText: "取消",
+      confirmText: "删除",
 
-    Alert.alert(
-      "确认删除",
-      `确定要删除「${itemToDelete.name}」吗？`,
-      [
-        { text: "取消", style: "cancel" },
-        {
-          text: "删除",
-          style: "destructive",
-          onPress: () => {
-            deleteItem(id);
-            if (editingItem?.id === id) {
-              setEditingItem(null);
-              setEditModalVisible(false);
-            }
-          },
-        },
-      ],
-      { cancelable: true }
-    );
+      onConfirm: async () => {
+        deleteItem(id);
+        if (editingItem?.id === id) {
+          setEditingItem(null);
+          setEditModalVisible(false);
+        }
+      },
+    });
   };
 
   const handleAddSave = (data: { name: string; price: number; purchaseDate: Date; imageUri?: string }) => {
@@ -167,6 +163,18 @@ export default function App() {
           />
         )}
 
+        <AlertDialog
+          visible={alertVisible}
+          title={alertTitle}
+          message={alertMessage}
+          type={alertOptions.type}
+          confirmText={alertOptions.confirmText}
+          onDismiss={hideAlert}
+          onConfirm={() => {
+            alertOptions.onConfirm?.();
+            hideAlert();
+          }}
+        />
         <DraggableFAB onPress={openAddModal} longPressToCenter={true} />
       </View>
     </PaperProvider>
