@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { Image, Keyboard, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import { Button, Modal, TextInput } from "react-native-paper";
 import { DatePickerModal } from "react-native-paper-dates";
 
@@ -88,67 +88,72 @@ export default function ItemModal({ visible, onDismiss, onSave, onDelete, initia
     <Modal
       visible={visible}
       onDismiss={onDismiss}
+      dismissable={false} // 禁止点击外部关闭
       contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
     >
-      <AutoCompleteInput label='物品名称' value={name} onChangeText={setName} style={styles.input} />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View>
+          <AutoCompleteInput label='物品名称' value={name} onChangeText={setName} style={styles.input} />
 
-      <TextInput
-        label='价格'
-        value={priceText}
-        onChangeText={setPriceText}
-        keyboardType='numeric'
-        mode='outlined'
-        style={styles.input}
-        right={
-          priceText.length > 0 ? (
-            <TextInput.Icon
-              icon='close'
-              onPress={() => setPriceText("")} // 点击清空
-            />
-          ) : null
-        }
-      />
+          <TextInput
+            label='价格'
+            value={priceText}
+            onChangeText={setPriceText}
+            keyboardType='numeric'
+            mode='outlined'
+            style={styles.input}
+            right={
+              priceText.length > 0 ? (
+                <TextInput.Icon
+                  icon='close'
+                  onPress={() => setPriceText("")} // 点击清空
+                />
+              ) : null
+            }
+          />
 
-      <Button mode='outlined' onPress={() => setDatePickerVisible(true)} style={{ marginBottom: 12 }}>
-        {purchaseDate ? `购买日期: ${dayjs(purchaseDate).format("YYYY-MM-DD")}` : "选择购买日期"}
-      </Button>
+          <Button mode='outlined' onPress={() => setDatePickerVisible(true)} style={{ marginBottom: 12 }}>
+            {purchaseDate ? `购买日期: ${dayjs(purchaseDate).format("YYYY-MM-DD")}` : "选择购买日期"}
+          </Button>
 
-      <DatePickerModal
-        locale='zh'
-        mode='single'
-        visible={datePickerVisible}
-        onDismiss={() => setDatePickerVisible(false)}
-        date={purchaseDate}
-        onConfirm={({ date }) => {
-          setDatePickerVisible(false);
-          if (date) setPurchaseDate(date);
-        }}
-        saveLabel='确定'
-        label='选择日期'
-        animationType='slide'
-      />
+          <DatePickerModal
+            locale='zh'
+            mode='single'
+            visible={datePickerVisible}
+            onDismiss={() => setDatePickerVisible(false)}
+            date={purchaseDate}
+            onConfirm={({ date }) => {
+              setDatePickerVisible(false);
+              if (date) setPurchaseDate(date);
+            }}
+            saveLabel='确定'
+            label='选择日期'
+            animationType='slide'
+          />
 
-      <Button mode='outlined' onPress={pickImage} style={{ marginBottom: 12 }}>
-        {imageUri ? "更换图片" : "选择图片"}
-      </Button>
+          <Button mode='outlined' onPress={pickImage} style={{ marginBottom: 12 }}>
+            {imageUri ? "更换图片" : "选择图片"}
+          </Button>
 
-      {imageUri && (
-        <View style={styles.imageContainer}>
-          <Image source={{ uri: imageUri }} style={styles.imagePreview} resizeMode='cover' />
+          {imageUri && (
+            <View style={styles.imageContainer}>
+              <Image source={{ uri: imageUri }} style={styles.imagePreview} resizeMode='cover' />
+            </View>
+          )}
+
+          <Button mode='contained' onPress={handleSave} style={{ marginBottom: 8 }}>
+            保存
+          </Button>
+
+          {isEditing && onDelete && (
+            <Button mode='outlined' onPress={onDelete} textColor={theme.colors.error}>
+              删除
+            </Button>
+          )}
+
+          <AlertDialog visible={dialogVisible} message={dialogMessage} onDismiss={() => setDialogVisible(false)} />
         </View>
-      )}
-
-      <Button mode='contained' onPress={handleSave} style={{ marginBottom: 8 }}>
-        保存
-      </Button>
-
-      {isEditing && onDelete && (
-        <Button mode='outlined' onPress={onDelete} color={theme.colors.error}>
-          删除
-        </Button>
-      )}
-
-      <AlertDialog visible={dialogVisible} message={dialogMessage} onDismiss={() => setDialogVisible(false)} />
+      </TouchableWithoutFeedback>
     </Modal>
   );
 }
