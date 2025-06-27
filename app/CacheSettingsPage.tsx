@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system";
 import { router, Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, StyleSheet } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Appbar, Button, List, Text } from "react-native-paper";
 
 type CacheItem = {
@@ -142,60 +142,62 @@ const CacheSettingsPage = () => {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
+      <ScrollView>
+        <Stack.Screen options={{ headerShown: false }} />
 
-      <Appbar.Header style={{ backgroundColor: theme.colors.primary }}>
-        <Appbar.BackAction onPress={() => router.back()} color='white' />
-        <Appbar.Content title='缓存设置' color='white' />
-      </Appbar.Header>
+        <Appbar.Header style={{ backgroundColor: theme.colors.primary }}>
+          <Appbar.BackAction onPress={() => router.back()} color='white' />
+          <Appbar.Content title='缓存设置' color='white' />
+        </Appbar.Header>
 
-      <ScrollView style={styles.container}>
-        <List.Section>
-          <List.Item title='总缓存大小' description={cacheSize} left={() => <List.Icon icon='chart-box' />} />
-        </List.Section>
+        <View style={{ padding: 16 }}>
+          <List.Section>
+            <List.Item title='总缓存大小' description={cacheSize} left={() => <List.Icon icon='chart-box' />} />
+          </List.Section>
 
-        {isLoading ? (
-          <ActivityIndicator style={styles.loader} animating={true} />
-        ) : (
-          <>
-            <List.Section>
-              <List.Subheader>缓存数据明细</List.Subheader>
-              {cacheItems.length > 0 ? (
-                cacheItems
-                  // todo 暂时隐藏这个默认值，这是恢复，不是删除
-                  .filter((item) => item.name !== "@user_storage" && item.name !== "@settings_storage")
-                  .map((item, index) => (
-                    <List.Item
-                      key={`${item.type}-${index}`}
-                      title={item.name}
-                      description={`${item.size} (${item.type === "file" ? "文件" : "存储"})`}
-                      left={() => <List.Icon icon={item.type === "file" ? "file" : "database"} />}
-                      right={() => (
-                        <Button mode='text' onPress={() => clearCacheItem(item)} textColor='#ff4444'>
-                          <Text>删除</Text>
-                        </Button>
-                      )}
-                    />
-                  ))
-              ) : (
-                <Text style={styles.emptyText}>暂无缓存数据</Text>
-              )}
-            </List.Section>
+          {isLoading ? (
+            <ActivityIndicator style={styles.loader} animating={true} />
+          ) : (
+            <>
+              <List.Section>
+                <List.Subheader>缓存数据明细</List.Subheader>
+                {cacheItems.length > 0 ? (
+                  cacheItems
+                    // todo 暂时隐藏这个默认值，这是恢复，不是删除
+                    .filter((item) => item.name !== "@user_storage" && item.name !== "@settings_storage")
+                    .map((item, index) => (
+                      <List.Item
+                        key={`${item.type}-${index}`}
+                        title={item.name}
+                        description={`${item.size} (${item.type === "file" ? "文件" : "存储"})`}
+                        left={() => <List.Icon icon={item.type === "file" ? "file" : "database"} />}
+                        right={() => (
+                          <Button mode='text' onPress={() => clearCacheItem(item)} textColor='#ff4444'>
+                            <Text>删除</Text>
+                          </Button>
+                        )}
+                      />
+                    ))
+                ) : (
+                  <Text style={styles.emptyText}>暂无缓存数据</Text>
+                )}
+              </List.Section>
 
-            <Button
-              mode='contained'
-              onPress={clearAllCache}
-              loading={isClearing}
-              disabled={isClearing}
-              style={styles.clearButton}
-              labelStyle={styles.clearButtonLabel}
-            >
-              清除所有缓存
-            </Button>
+              <Button
+                mode='contained'
+                onPress={clearAllCache}
+                loading={isClearing}
+                disabled={isClearing}
+                style={styles.clearButton}
+                labelStyle={styles.clearButtonLabel}
+              >
+                清除所有缓存
+              </Button>
 
-            <Text style={styles.note}>注意：清除缓存会删除临时文件，但不会影响您的账户数据</Text>
-          </>
-        )}
+              <Text style={styles.note}>注意：清除缓存会删除临时文件，但不会影响您的账户数据</Text>
+            </>
+          )}
+        </View>
       </ScrollView>
     </>
   );
@@ -204,7 +206,6 @@ const CacheSettingsPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
   },
   loader: {
     marginTop: 20,
