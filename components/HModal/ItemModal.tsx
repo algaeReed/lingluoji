@@ -88,7 +88,7 @@ export default function ItemModal({ visible, onDismiss, onSave, onDelete, initia
     <Modal
       visible={visible}
       onDismiss={onDismiss}
-      dismissable={false} // 禁止点击外部关闭
+      // dismissable={false} // 禁止点击外部关闭
       contentContainerStyle={[styles.modalContainer, { backgroundColor: theme.colors.surface }]}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
