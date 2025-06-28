@@ -6,7 +6,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 import { getUsageTimeDescription } from "@/utils/getUsageTimeDescription";
 import dayjs from "dayjs";
 import React, { useRef, useState } from "react";
-import { Animated, ImageBackground, Pressable, StyleSheet, Vibration, View } from "react-native";
+import { Animated, ImageBackground, Pressable, StyleSheet, View } from "react-native";
 import { Avatar, Card, IconButton, Text } from "react-native-paper";
 
 interface FlipCardProps {
@@ -42,7 +42,7 @@ export default function FlipCard({ item, onEdit, onDelete }: FlipCardProps) {
   };
 
   const handleFlip = () => {
-    Vibration.vibrate(10);
+    // Vibration.vibrate(10);
     Animated.timing(flipAnim, {
       toValue: flipped ? 0 : 180,
       duration: 400,
