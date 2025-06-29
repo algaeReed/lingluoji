@@ -277,7 +277,7 @@ export function SwipeableRow({
           style={[styles.editButton, editBtnStyle, { backgroundColor: editButtonColor, height: itemHeight - 16 }]}
         >
           {showEdit && (
-            <View onTouchStart={onPressEdit}>
+            <View onTouchStart={onPressEdit} style={styles.fullSizeTouchable}>
               {renderEditButton ? renderEditButton() : <Text style={styles.buttonText}>编辑</Text>}
             </View>
           )}
@@ -285,7 +285,7 @@ export function SwipeableRow({
         <Animated.View
           style={[styles.deleteButton, deleteBtnStyle, { backgroundColor: deleteButtonColor, height: itemHeight - 16 }]}
         >
-          <View onTouchStart={onPressDelete}>
+          <View onTouchStart={onPressDelete} style={styles.fullSizeTouchable}>
             {renderDeleteButton ? renderDeleteButton() : <Text style={styles.buttonText}>删除</Text>}
           </View>
         </Animated.View>
@@ -352,5 +352,14 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "600",
     fontSize: 16,
+  },
+
+  fullSizeTouchable: {
+    flex: 1, // 占据所有可用空间
+    width: "100%", // 宽度100%
+    borderWidth: 1,
+    // height: "100%", // 高度100%
+    justifyContent: "center", // 垂直居中
+    alignItems: "center", // 水平居中
   },
 });
