@@ -1,5 +1,4 @@
 // SwipeableRow.tsx
-
 import * as Haptics from "expo-haptics";
 import * as React from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
@@ -114,17 +113,28 @@ export function SwipeableRow({
   // 手势处理
   const gestureHandler = useAnimatedGestureHandler<
     PanGestureHandlerGestureEvent,
-    { startX: number; openedTranslateX: number }
+    { startX: number; openedTranslateX: number; isSwipingHorizontally: boolean }
   >({
     onStart: (_, ctx) => {
       ctx.startX = translateX.value;
       ctx.openedTranslateX = translateX.value;
+      ctx.isSwipingHorizontally = false;
       if (!isOpen) {
         console.log(`[${id}] gesture onStart: setOpenRowId`);
         runOnJS(setOpenRowId)(id);
       }
     },
     onActive: (event, ctx) => {
+      // Check if we're swiping horizontally or vertically
+      if (!ctx.isSwipingHorizontally) {
+        if (Math.abs(event.translationX) > Math.abs(event.translationY)) {
+          ctx.isSwipingHorizontally = true;
+        } else {
+          // Vertical swipe, let the parent handle it
+          return;
+        }
+      }
+
       let newTranslateX = ctx.startX + event.translationX;
       if (newTranslateX > 0) newTranslateX = 0;
       translateX.value = newTranslateX;
@@ -276,7 +286,12 @@ export function SwipeableRow({
           </View>
         </Animated.View>
       </View>
-      <PanGestureHandler onGestureEvent={gestureHandler}>
+      <PanGestureHandler
+        onGestureEvent={gestureHandler}
+        activeOffsetX={[-10, 10]} // 水平滑动阈值
+        activeOffsetY={[-20, 20]} // 垂直滑动阈值
+        failOffsetY={[-10, 10]} // 垂直滑动失败阈值
+      >
         <Animated.View style={[styles.row, animatedStyle]} pointerEvents='box-none'>
           {children}
         </Animated.View>
