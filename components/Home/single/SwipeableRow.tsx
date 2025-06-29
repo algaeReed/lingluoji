@@ -273,14 +273,18 @@ export function SwipeableRow({
   return (
     <Animated.View style={[styles.rowContainer, rowAnimatedStyle]}>
       <View style={styles.hiddenButtons}>
-        <Animated.View style={[styles.editButton, editBtnStyle, { backgroundColor: editButtonColor }]}>
+        <Animated.View
+          style={[styles.editButton, editBtnStyle, { backgroundColor: editButtonColor, height: itemHeight - 16 }]}
+        >
           {showEdit && (
             <View onTouchStart={onPressEdit}>
               {renderEditButton ? renderEditButton() : <Text style={styles.buttonText}>编辑</Text>}
             </View>
           )}
         </Animated.View>
-        <Animated.View style={[styles.deleteButton, deleteBtnStyle, { backgroundColor: deleteButtonColor }]}>
+        <Animated.View
+          style={[styles.deleteButton, deleteBtnStyle, { backgroundColor: deleteButtonColor, height: itemHeight - 16 }]}
+        >
           <View onTouchStart={onPressDelete}>
             {renderDeleteButton ? renderDeleteButton() : <Text style={styles.buttonText}>删除</Text>}
           </View>
@@ -311,6 +315,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f8f8",
     justifyContent: "center",
     borderRadius: 8,
+    // borderWidth: 1,
+    height: "100%",
   },
   hiddenButtons: {
     position: "absolute",
@@ -322,6 +328,7 @@ const styles = StyleSheet.create({
     paddingRight: BUTTON_SPACING,
     paddingLeft: BUTTON_SPACING,
     zIndex: 0,
+    // borderWidth: 1,
   },
   editButton: {
     height: 50,
