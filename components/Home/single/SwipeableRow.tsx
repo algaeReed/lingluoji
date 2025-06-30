@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   fullSizeTouchable: {
     flex: 1, // 占据所有可用空间
     width: "100%", // 宽度100%
-    borderWidth: 1,
+    // borderWidth: 1,
     // height: "100%", // 高度100%
     justifyContent: "center", // 垂直居中
     alignItems: "center", // 水平居中
