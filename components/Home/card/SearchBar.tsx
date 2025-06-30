@@ -20,6 +20,7 @@ export default function SearchBar({ searchTerm, setSearchTerm, resultsCount }: S
           placeholder='Search items...'
           value={searchTerm}
           onChangeText={setSearchTerm}
+          outlineStyle={styles.inputOutline}
           style={styles.searchInput}
           theme={{
             ...theme,
@@ -51,6 +52,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0, 0, 0, 0.1)",
+  },
+  inputOutline: {
+    borderColor: "rgba(0, 0, 0, 0.2)", // 直接控制边框颜色
   },
   searchInput: {
     backgroundColor: "transparent",
