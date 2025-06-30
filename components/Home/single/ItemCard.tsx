@@ -15,25 +15,31 @@ export default function ItemCard({ item }: ItemCardProps) {
 
   return (
     <View style={styles.rowFront}>
-      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={3}>
-        <View style={styles.cardContent}>
-          {item.imageUri ? (
-            <Card.Cover source={{ uri: item.imageUri }} style={styles.cardImage} />
-          ) : (
-            <Avatar.Icon
-              icon='image-off-outline'
-              size={56}
-              style={[styles.avatarPlaceholder, { backgroundColor: theme.colors.backdrop }]}
-            />
-          )}
-          <View style={styles.infoContainer}>
-            <Text style={[styles.itemName, { color: theme.colors.onSurface }]}>{item.name}</Text>
-            <Text style={[styles.itemDate, { color: theme.colors.secondary }]}>购买日期: {item.purchaseDate}</Text>
-            <Text style={[styles.priceText, { color: theme.colors.onSurface }]}>总价格: ¥{item.price.toFixed(2)}</Text>
-            <Text style={[styles.avgPriceText, { color: theme.colors.primary }]}>日均价格: ¥{avgPrice.toFixed(2)}</Text>
-            <Text style={[styles.dayCountText, { color: theme.colors.secondary }]}>已过天数: {days} 天</Text>
+      <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+        <Card.Content style={styles.content}>
+          <View style={styles.cardContent}>
+            {item.imageUri ? (
+              <Card.Cover source={{ uri: item.imageUri }} style={styles.cardImage} />
+            ) : (
+              <Avatar.Icon
+                icon='image-off-outline'
+                size={56}
+                style={[styles.avatarPlaceholder, { backgroundColor: theme.colors.backdrop }]}
+              />
+            )}
+            <View style={styles.infoContainer}>
+              <Text style={[styles.itemName, { color: theme.colors.onSurface }]}>{item.name}</Text>
+              <Text style={[styles.itemDate, { color: theme.colors.secondary }]}>购买日期: {item.purchaseDate}</Text>
+              <Text style={[styles.priceText, { color: theme.colors.onSurface }]}>
+                总价格: ¥{item.price.toFixed(2)}
+              </Text>
+              <Text style={[styles.avgPriceText, { color: theme.colors.primary }]}>
+                日均价格: ¥{avgPrice.toFixed(2)}
+              </Text>
+              <Text style={[styles.dayCountText, { color: theme.colors.secondary }]}>已过天数: {days} 天</Text>
+            </View>
           </View>
-        </View>
+        </Card.Content>
       </Card>
     </View>
   );
@@ -43,6 +49,11 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 12,
     overflow: Platform.OS === "android" ? "hidden" : "visible",
+    marginVertical: 6,
+    elevation: 2,
+  },
+  content: {
+    paddingVertical: 8,
   },
   cardContent: {
     flexDirection: "row",
