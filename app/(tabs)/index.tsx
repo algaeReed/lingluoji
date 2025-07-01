@@ -5,12 +5,14 @@ import { MD3Theme, Provider as PaperProvider, useTheme } from "react-native-pape
 
 import AlertDialog from "@/components/AlertDialog/AlertDialog";
 import DraggableFAB from "@/components/DraggableFAB/DraggableFAB";
+import CustomHeader from "@/components/HeaderWithSearch";
 import AddItemModal from "@/components/HModal/AddItemModal";
 import EditItemModal from "@/components/HModal/EditItemModal";
 import ItemListLayout from "@/components/Home/ItemListLayout";
 import SummaryCard from "@/components/SummaryCard/SummaryCard";
 import useAlert from "@/hooks/useAlert";
 import useAppUpdate from "@/hooks/useAppUpdate";
+import useItemSearch from "@/hooks/useItemSearch";
 import { Item, useItemsStore } from "@/store/itemStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import * as Haptics from "expo-haptics";
@@ -119,27 +121,23 @@ export default function App() {
     setEditModalVisible(false);
   };
 
-  const showHeader = false;
+  const showHeader = true;
+  const { searchTerm, setSearchTerm, filteredItems } = useItemSearch(items);
+
   return (
     <PaperProvider theme={theme}>
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        {/* <HeaderWithSearch onSearch={(query) => console.log("搜索内容:", query)} /> */}
-        {/* <CustomHeader title='零落集' onSearch={(query) => console.log("Search:", query)} /> */}
+        <CustomHeader
+          title='零落集'
+          onChange={(query) => {
+            console.log("Query changed:", query);
+            setSearchTerm(query);
+          }}
+        />
 
-        <View
-          style={[
-            styles.header,
-            showHeader
-              ? {
-                  marginTop: 120,
-                }
-              : {
-                  marginTop: 60,
-                },
-          ]}
-        >
+        <View style={[styles.header, showHeader ? { marginTop: 120 } : { marginTop: 60 }]}>
           <Content
-            items={items}
+            items={filteredItems}
             refreshing={refreshing}
             onRefresh={onRefresh}
             onEdit={handleItemEdit}

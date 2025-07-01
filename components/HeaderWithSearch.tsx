@@ -8,9 +8,10 @@ import { MD3Theme, useTheme } from "react-native-paper";
 interface CustomHeaderProps {
   title: string;
   onSearch?: (query: string) => void;
+  onChange?: (query: string) => void; // Added onChange prop
 }
 
-const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onSearch }) => {
+const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onSearch, onChange }) => {
   const theme: MD3Theme = useTheme();
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,14 +40,19 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onSearch }) => {
     toggleSearch();
   };
 
+  const handleChange = (text: string) => {
+    setSearchQuery(text);
+    onChange?.(text); // Call onChange prop when text changes
+  };
+
   const headerTranslateY = slideAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, -100],
+    outputRange: [0, -90],
   });
 
   const searchTranslateY = slideAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [100, 0],
+    outputRange: [90, 0],
   });
 
   return (
@@ -56,7 +62,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onSearch }) => {
         style={[
           styles.header,
           {
-            backgroundColor: theme.colors.elevation.level2,
+            backgroundColor: theme.colors.primary,
             transform: [{ translateY: headerTranslateY }],
           },
         ]}
@@ -81,7 +87,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onSearch }) => {
           style={[
             styles.searchContainer,
             {
-              backgroundColor: theme.colors.elevation.level3,
+              backgroundColor: theme.colors.primary,
               transform: [{ translateY: searchTranslateY }],
             },
           ]}
@@ -93,7 +99,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onSearch }) => {
               placeholder='搜索...'
               placeholderTextColor={theme.colors.onSurfaceVariant}
               value={searchQuery}
-              onChangeText={setSearchQuery}
+              onChangeText={handleChange} // Updated to use handleChange
               autoFocus
               onSubmitEditing={handleSearch}
             />
@@ -113,8 +119,8 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: Platform.OS === "ios" ? 90 : 60,
-    paddingTop: Platform.OS === "ios" ? 30 : 0,
+    height: Platform.OS === "ios" ? 90 : 90,
+    paddingTop: Platform.OS === "ios" ? 30 : 30,
     zIndex: 100,
     overflow: "hidden",
   },
@@ -142,8 +148,8 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: Platform.OS === "ios" ? 140 : 110,
-    paddingTop: Platform.OS === "ios" ? 30 : 0,
+    height: Platform.OS === "ios" ? 140 : 140,
+    paddingTop: Platform.OS === "ios" ? 60 : 60,
     zIndex: 99,
     overflow: "hidden",
   },
