@@ -6,7 +6,7 @@ import Carousel from "react-native-snap-carousel";
 import ItemForCard from "./ItemForCard";
 import SearchBar from "./SearchBar"; // Import the new component
 
-import { scrollInterpolator2 } from "./interpolators";
+import { animatedStyles2, scrollInterpolator2 } from "./interpolators";
 
 const { width } = Dimensions.get("window");
 
