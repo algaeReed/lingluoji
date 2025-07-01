@@ -44,7 +44,7 @@ export default function CardLayout({ items, refreshing, onRefresh, onEdit, onDel
             </View>
           )}
           scrollInterpolator={scrollInterpolator2}
-          // slideInterpolatedStyle={animatedStyles2} //暂时不知道影响什么
+          slideInterpolatedStyle={animatedStyles2} //暂时不知道影响什么 // 卡片样式
           inactiveSlideScale={1}
           inactiveSlideOpacity={1}
           enableMomentum={true}
