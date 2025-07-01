@@ -74,7 +74,7 @@ export default function SingleColumnLayout({ items, refreshing, onRefresh, onEdi
 
   return (
     <PaperProvider theme={theme}>
-      <GestureHandlerRootView style={{ flex: 1, paddingTop: 50, backgroundColor: theme.colors.background }}>
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: theme.colors.background }}>
         <FlatList data={items} keyExtractor={(item) => item.id} renderItem={renderItem} />
         {toastText && <Toast message={toastText} />}
       </GestureHandlerRootView>
