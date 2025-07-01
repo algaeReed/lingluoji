@@ -121,19 +121,21 @@ export default function App() {
     setEditModalVisible(false);
   };
 
-  const showHeader = true;
+  const showHeader = layoutMode == "singleColumn" || layoutMode == "doubleColumn" ? true : false;
   const { searchTerm, setSearchTerm, filteredItems } = useItemSearch(items);
 
   return (
     <PaperProvider theme={theme}>
       <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <CustomHeader
-          title='零落集'
-          onChange={(query) => {
-            console.log("Query changed:", query);
-            setSearchTerm(query);
-          }}
-        />
+        {showHeader && (
+          <CustomHeader
+            title='零落集'
+            onChange={(query) => {
+              console.log("Query changed:", query);
+              setSearchTerm(query);
+            }}
+          />
+        )}
 
         <View style={[styles.header, showHeader ? { marginTop: 120 } : { marginTop: 60 }]}>
           <Content
