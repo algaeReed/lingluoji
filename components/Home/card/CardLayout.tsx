@@ -1,11 +1,12 @@
+import useItemSearch from "@/hooks/useItemSearch";
 import { Item } from "@/store/itemStore";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import Carousel from "react-native-snap-carousel";
 import ItemForCard from "./ItemForCard";
 import SearchBar from "./SearchBar"; // Import the new component
 
-import { animatedStyles2, scrollInterpolator2 } from "./interpolators";
+import { scrollInterpolator2 } from "./interpolators";
 
 const { width } = Dimensions.get("window");
 
@@ -24,14 +25,7 @@ interface CardLayoutProps {
  */
 export default function CardLayout({ items, refreshing, onRefresh, onEdit, onDelete }: CardLayoutProps) {
   const carouselRef = useRef<Carousel<Item>>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // Filter items based on search term
-  const filteredItems = items.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.name && item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const { searchTerm, setSearchTerm, filteredItems } = useItemSearch(items);
 
   return (
     <View style={{ flex: 1 }}>
@@ -50,7 +44,7 @@ export default function CardLayout({ items, refreshing, onRefresh, onEdit, onDel
             </View>
           )}
           scrollInterpolator={scrollInterpolator2}
-          slideInterpolatedStyle={animatedStyles2}
+          // slideInterpolatedStyle={animatedStyles2} //暂时不知道影响什么
           inactiveSlideScale={1}
           inactiveSlideOpacity={1}
           enableMomentum={true}
