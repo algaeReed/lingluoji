@@ -50,6 +50,9 @@ interface SettingsStore {
   setForceType: (value: UsageTimeType | undefined) => void;
 
   reset: () => Promise<void>; // 新增 reset 方法声明
+
+  showExploreTab: boolean;
+  setShowExploreTab: (show: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -106,7 +109,10 @@ export const useSettingsStore = create<SettingsStore>()(
           throw error;
         }
       },
+      showExploreTab: false, // 默认不显示
+      setShowExploreTab: (show) => set({ showExploreTab: show }),
     }),
+
     {
       name: STORAGE_KEYS.settings,
       storage: createJSONStorage(() => AsyncStorage),

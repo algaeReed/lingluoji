@@ -10,6 +10,7 @@ import { useTheme } from "@/theme/ThemeProvider"; // ✅ 引入 Paper 主题
 export default function TabLayout() {
   const { theme } = useTheme(); // ✅ 获取当前主题
   const showTabBar = useSettingsStore((state) => state.showTabBar);
+  const { showExploreTab } = useSettingsStore();
 
   return (
     <Tabs
@@ -47,7 +48,7 @@ export default function TabLayout() {
         name='explore'
         options={{
           title: "Explore",
-          // href: null, // ✅ 不出现在底部导航/
+          href: showExploreTab ? "/explore" : null, // ✅ 不出现在底部导航/
           tabBarIcon: ({ color }) => <IconSymbol name='paperplane.fill' size={28} color={color} />,
         }}
       />

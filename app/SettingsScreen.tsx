@@ -13,6 +13,10 @@ const SettingsScreen = ({}) => {
 
   const showTabBar = useSettingsStore((state) => state.showTabBar);
   const setShowTabBar = useSettingsStore((state) => state.setShowTabBar);
+
+  const [tapCount, setTapCount] = useState(0);
+  const [lastTapTime, setLastTapTime] = useState(0);
+
   const toggleTabBar = () => {
     Alert.alert(showTabBar ? "确认隐藏底部栏？" : "确认显示底部栏？", "该操作将立即生效，并返回首页。", [
       { text: "取消", style: "cancel" },
@@ -26,6 +30,21 @@ const SettingsScreen = ({}) => {
     ]);
   };
 
+  const handleVersionPress = () => {
+    const now = Date.now();
+    if (now - lastTapTime > 3000) {
+      // Reset if more than 3 seconds between taps
+      setTapCount(1);
+    } else {
+      setTapCount(tapCount + 1);
+    }
+    setLastTapTime(now);
+
+    if (tapCount >= 3) {
+      setTapCount(0);
+      router.push("/DebugScreen");
+    }
+  };
   return (
     <>
       <ScrollView contentContainerStyle={{}}>
@@ -108,7 +127,7 @@ const SettingsScreen = ({}) => {
               title='版本信息'
               description='当前版本 v1.0.0'
               left={() => <List.Icon icon='information-outline' />}
-              onPress={() => {}}
+              onPress={() => handleVersionPress()}
             />
           </List.Section>
         </View>
